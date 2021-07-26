@@ -4,29 +4,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 //Import Helmet package: To secure Express apps by setting various HTTP headers.
 const helmet = require("helmet");
-//Import MySQL package: DataBase.
-const mysql = require('mysql');
 //Import Dot env package: To mask connections informations.
 require('dotenv').config();
 //Create Express application.
 const app = express();
-
-//Create Connection to SQL database.
-const sql = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT
-});
-
-//Connection to SQL database.
-sql.connect(function (err) {
-  if (err) {
-    return console.error('error: ' + err.message);
-  }
-  console.log('Connected to the database !');
-});
 
 //Cross Origin Resource Sharing Management
 app.use((req, res, next) => {
@@ -43,7 +24,15 @@ app.use(helmet());
 
 //Import user routes.
 const userRoutes = require('./routes/user');
+//Import post routes.
+const postRoutes = require('./routes/post');
+//Import comment routes.
+const commentRoutes = require('./routes/comment');
 //Serve the route for user.
 app.use('/api/auth', userRoutes);
+//Serve the route for post.
+app.use('/api/posts', postRoutes);
+//Serve the route for comment.
+app.use('/api/comments', commentRoutes);
 
 module.exports = app;

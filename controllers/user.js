@@ -4,65 +4,100 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 //Import CryptoJS package: to encrypt mail adress.
 const cryptojs = require('crypto-js');
-//Import the user's model, create by mongoose.
-const User = require('../models/users');
-var app = require('../app.js');
-
+//Import the database connection.
+const db = require("../database_connect");
 
 //Middleware to create a new user account.
-exports.signup = (req, res, next) => {
+exports.signup = (req, res) => {
   let regexEmail = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  let regexName = /^[a-zA-Z]+(?:-[a-zA-Z]+)*$/;
   if (regexEmail.test(req.body.email) === false) {
-    res.status(400).json({ error: 'Please insert a valid mail like userName@groupomania.fr' })
-  } else {
-    //Calculates a Hash-based Message Authentication Code (HMAC) using the Secure Hash Algorithm function (SHA256).
-    const cryptedEmail = cryptojs.HmacSHA256(req.body.email, process.env.CRPT_MAIL).toString();
-    bcrypt.hash(req.body.password, 10)
-      .then(hash => {
-        const user = new User({
-          firstname: req.body.firstname,
-          lastname: req.body.lastname,
-          // avatar: req.body.avatar,
-          email: cryptedEmail,
-          password: hash
-        })
-        let sql = `INSERT INTO users SET ?`;
-        let query = app.db.query(sql, user, (err, results) => {
-          if (err) {
-            res.status(400).send(err);
-          } else {
-            res.status(200).json(results);
-          }
-        })
-      })
-      .catch(error => res.status(500).json({ error }));
+    res.status(400).json({ error: 'A correct email format (example@email.com) is required.' })
+  } else if  (regexName.test(req.body.firstname) === false) {
+    res.status(400).json({ error: 'A correct firstname format is required.' })
+  } else if  (regexName.test(req.body.lastname) === false) {
+    res.status(400).json({ error: 'A correct lastname format is required.' })
   }
+  else {
+    const cryptedEmail = cryptojs.HmacSHA256(req.body.email, process.env.CRPT_MAIL).toString();
+    const lastname = req.body.lastname.toUpperCase();
+    const firstname = req.body.firstname.charAt(0).toUpperCase() + req.body.firstname.toLowerCase().slice(1);
+    db.query(`SELECT * FROM users WHERE email='${cryptedEmail}'`,
+      (error, results, rows) => {
+        if (results.length > 0) {
+          res.status(401).json({ error: 'Email is already used.' });
+        } else {
+          bcrypt.hash(req.body.password, 10)
+            .then(hash => {
+              db.query(`INSERT INTO users VALUES (NULL, '${firstname}','${lastname}','${cryptedEmail}','${hash}', 0)`,
+                (error, results) => {
+                  if (error) {
+                    res.status(400).json({ error })
+                  }
+                  else {
+                    res.status(201).json(results);
+                  }
+                });
+            })
+            .catch(error => res.status(500).json({ error }));
+        }
+      });
+  };
 };
 
-//Middleware to connect a user account that already exist in the DB.
+//Middleware to login a user account.
 exports.login = (req, res, next) => {
-  //Calculates a Hash-based Message Authentication Code (HMAC) using the Secure Hash Algorithm function (SHA256).
   const cryptedEmail = cryptojs.HmacSHA256(req.body.email, process.env.CRPT_MAIL).toString();
-  User.findOne({ email: cryptedEmail })
-    .then(user => {
-      if (!user) {
-        return res.status(401).json({ error: 'User not found !' });
+  db.query(`SELECT * FROM users WHERE email='${cryptedEmail}'`,
+    (error, result, rows) => {
+      if (result.length > 0) {
+        bcrypt.compare(req.body.password, result[0].password)
+          .then(valid => {
+            if (!valid) {
+              return res.status(401).json({ error: 'Incorrect password.' });
+            }
+            res.status(200).json({
+              userId: result[0].id,
+              firstname: result[0].firstname,
+              lastname: result[0].lastname,
+              admin: result[0].admin,
+              token: jwt.sign(
+                { userId: result[0].id, },
+                process.env.TK_JWT,
+                { expiresIn: '24h' }
+              )
+            });
+          })
+          .catch(error => res.status(500).json({ error }));
+      } else {
+        res.status(404).json({ error: 'Incorrect E-mail.' });
       }
-      bcrypt.compare(req.body.password, user.password)
-        .then(valid => {
-          if (!valid) {
-            return res.status(401).json({ error: 'Incorrect password !' });
-          }
-          res.status(200).json({
-            userId: user._id,
-            token: jwt.sign(          // encode a new token 
-              { userId: user._id },
-              process.env.TK_JWT,
-              { expiresIn: '24h' }
-            )
-          });
-        })
-        .catch(error => res.status(500).json({ error }));
-    })
-    .catch(error => res.status(500).json({ error }));
+    }
+  );
+};
+
+//Middleware to delete a user account.
+exports.delete = (req, res, next) => {
+  db.query(`DELETE FROM users WHERE users.id = ${req.params.id}`,
+    (error, result) => {
+      if (error) {
+        res.status(400).json({ error })
+      }
+      else {
+        res.status(200).json(result);
+      }
+    });
+};
+
+//Middleware to search  usern account.
+exports.search = (req, res, next) => {
+  db.query(`SELECT * FROM users WHERE users.id = ${req.params.id}`,
+    (error, result) => {
+      if (error) {
+        res.status(400).json({ error })
+      }
+      else {
+        res.status(200).json(result);
+      }
+    });
 };
