@@ -22,6 +22,13 @@ exports.signup = (req, res) => {
     const cryptedEmail = cryptojs.HmacSHA256(req.body.email, process.env.CRPT_MAIL).toString();
     const lastname = req.body.lastname.toUpperCase();
     const firstname = req.body.firstname.charAt(0).toUpperCase() + req.body.firstname.toLowerCase().slice(1);
+    const signupDate = new Date();
+    const createdAt = signupDate.toLocaleString('en-GB',{
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric'});
     db.query(`SELECT * FROM users WHERE email='${cryptedEmail}'`,
       (error, results, rows) => {
         if (results.length > 0) {
@@ -29,17 +36,17 @@ exports.signup = (req, res) => {
         } else {
           bcrypt.hash(req.body.password, 10)
             .then(hash => {
-              db.query(`INSERT INTO users VALUES (NULL, '${firstname}','${lastname}','${cryptedEmail}','${hash}', 0)`,
-                (error, results) => {
-                  if (error) {
-                    res.status(400).json({ error })
-                  }
-                  else {
-                    res.status(201).json(results);
-                  }
-                });
+              db.query(`INSERT INTO users VALUES (NULL, '${firstname}','${lastname}','${cryptedEmail}','${hash}','${createdAt}', 0)`,  
+              (error, results) => {
+                if (error) {
+                  res.status(400).json({ error })
+                }
+                else {
+                  res.status(201).json({ message: 'Account has been created.'});
+                }
+              });
             })
-            .catch(error => res.status(500).json({ error }));
+          .catch(error => res.status(500).json({ error }));
         }
       });
   };
@@ -60,6 +67,7 @@ exports.login = (req, res, next) => {
               userId: result[0].id,
               firstname: result[0].firstname,
               lastname: result[0].lastname,
+              createdAt: result[0].createdAt,
               admin: result[0].admin,
               token: jwt.sign(
                 { userId: result[0].id, },

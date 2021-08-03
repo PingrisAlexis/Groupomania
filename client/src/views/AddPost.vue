@@ -1,22 +1,19 @@
 <template>
   <div>
     <the-header></the-header>
-    <one-post></one-post>
+    <post-form></post-form>
   </div>
 </template>
 
 <script>
 import TheHeader from '../components/TheHeader.vue';
-import OnePost from '../components/OnePost.vue';
+import PostForm from "@/components/PostForm.vue";
+
 
 export default {
-  name:'Home',
   components: {
     TheHeader,
-    OnePost
+    PostForm
   },
 };
 </script>
-<style scoped>
-
-</style>

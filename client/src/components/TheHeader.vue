@@ -1,13 +1,16 @@
 <template>
   <div class="the-header-contenair">
-      <img src="../assets/groupomania-logo-align.png" alt="Logo Groupomania">
-      <nav>
-        <router-link  tag="a" to="/Home" active-class="active">Home</router-link>
+      <div class="banner">
+        <img src="../assets/groupomania-logo-align.png" alt="Logo Groupomania">
+        <nav>
+          <router-link  tag="a" to="/Home" active-class="active">Home</router-link>
           |
-        <router-link  tag="a" to="/MyAccount" active-class="active">Account</router-link>
+          <router-link  tag="a" to="/AddPost" active-class="active">Add a post</router-link>
           |
-        <button @click="onDisconnect()">Log Off</button>
-      </nav>
+          <router-link  tag="a" to="/MyAccount" active-class="active">Account</router-link>
+        </nav>
+      </div> 
+      <button class="left" @click="onDisconnect()">Log Off</button>
   </div>
 </template>
 
@@ -28,26 +31,37 @@ template {
 }
 
 .the-header-contenair {
-  /* height: 6rem; */
-  box-shadow: 0 0.2rem 0.2rem #d8d8d8;
+  width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  border: 0.1rem solid black;
+  border-top: none;
+  border-left: none;
+  border-right: none;
 }
 
-.the-header-contenair img {
+.banner img {
   height: 3rem;
 }
-.the-header-contenair nav {
-  padding-right: 1rem;
+
+.banner nav {
   font-size: 1.6rem;
   list-style-type: none;
+  margin-left: 1rem;
+
 }
+
+.banner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 5rem;
+}
+
 a {
   text-decoration: none;
   color:#333;
   font-weight: bold;
-  
 }
 
 .active {
@@ -55,7 +69,9 @@ a {
 }
 
 button {
-  margin-top: 2rem;
+  margin-right:auto;
+  margin-top: 0.7rem;
+  margin-right: 0.7rem;
   cursor: pointer;
   width: 5.3rem;
   height: 3.5rem;

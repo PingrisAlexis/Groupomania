@@ -4,8 +4,22 @@
         <img alt="image" :src="$user.avatar" />
     </div> -->
     <h1>Account N° {{this.$user.userId}}</h1>
-    <span>Firstname: {{this.$user.firstname}}</span>
-    <span>Lastname: {{this.$user.lastname}}</span>
+    <hr>
+    <div>
+      <h3>Firstname: </h3>
+      <h4 class="user-data">{{this.$user.firstname}}</h4>
+    </div>
+    <hr>
+    <div>
+      <h3>Lastname: </h3>
+      <h4 class="user-data">{{this.$user.lastname}}</h4>
+    </div>
+    <hr>
+    <div>
+      <h3>Account created: </h3>
+      <h4 class="user-data"> {{this.$user.createdAt	}}</h4>
+    </div>
+    <hr>
     <!-- <label for="avatar">Modify avatar:</label>
     <input type="text" name="avatar" id="avatar" placeholder="URL to image"> -->
     <button class="user-account-delete-user" @click="deleteUser()">Delete Account</button>
@@ -25,25 +39,11 @@ export default {
               'Authorization': `Bearer ${this.$token}`
             }
           }
-      )
+    )
       .then(localStorage.removeItem('user'))
       .then(location.href = "/Login")
     }
   }
-//   deleteUser(){
-//       const userId = this.$user.userId;
-//       axios.delete(`${this.$apiUrl}/auth/${userId}`,
-//           {
-//             headers: {
-//               'Content-Type': 'application/json',
-//               'Authorization': `Bearer ${this.$token}`
-//             }
-//           }
-//       )
-//       .then(localStorage.removeItem('user'))
-//       .then(location.href = "/");
-//     }
-//   }
 }
 </script>
 
@@ -61,11 +61,13 @@ template {
     justify-content: center;
     align-items: center;
     margin-top: 10rem;
-    border: 0.1rem solid black;
+    border: 0.2rem solid #fd2d01;
+    width: 20rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
     border-top: none;
     border-bottom: none;
-    width: 20rem;
-    height: 28rem;
+    border-right: none;
 }
 
 span, label {
@@ -107,5 +109,22 @@ span, label {
 }
 label {
     margin-top:1rem;
+}
+h1,
+h3 {
+  /* color: #fd2d01; */
+  
+  text-align: center;
+  font-size: 1.4rem;
+  margin: 0.5rem;
+}
+h4{
+  font-weight: lighter;
+  text-align: center;
+  font-size: 1.3rem;
+  margin: 0;
+}
+hr {
+  width:7rem;
 }
 </style>
