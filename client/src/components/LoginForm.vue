@@ -115,7 +115,10 @@ export default {
   color: #fd2d01;
   font-weight: bold;
 }
-
+.login-form button:hover {
+  transform: scale(1.03);
+  transition: 0.6s;
+}
 nav {
   cursor: pointer;
   font-size: 1.6rem;
