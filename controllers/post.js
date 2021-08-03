@@ -3,10 +3,11 @@ const db = require("../database_connect");
 
 //Middleware to create a post.
 exports.createOnePost = (req, res, next) => {
-  db.query(`INSERT INTO posts VALUES (NULL,'${req.body.message}','${req.body.media}','${req.body.userId}', NOW())`,
+  let  media = req.protocol + '://' + req.get('host') + '/images/' + req.file.filename;
+  db.query(`INSERT INTO posts VALUES (NULL,'${req.body.userId}','${req.body.title}','${req.body.message}','${media}', NOW())`,
     (error, result) => {
       if (error) {
-        res.status(400).json(error);
+        res.status(400).json({ error });
       }
       else {
         res.status(201).json(result);
@@ -64,6 +65,6 @@ exports.getAllPost = (req, res, next) => {
         res.status(200).json(result);
       }
     });
-}
+};
 
 
