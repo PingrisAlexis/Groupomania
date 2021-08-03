@@ -5,8 +5,8 @@ import Home from './views/Home';
 import MyAccount from './views/MyAccount';
 import AddPost from './views/AddPost';
 
-import Login from './components/LoginForm';
-import Signup from './components/SignupForm';
+import LoginForm from './components/LoginForm';
+import SignupForm from './components/SignupForm';
 import PostForm from './components/PostForm';
 import TheHeader from './components/TheHeader';
 import UserAccount from './components/UserAccount';
@@ -28,12 +28,12 @@ export default new VueRouter({
     component: Home,
   },
    {
-     path: '/Login',
-     component: Login,
+     path: '/LoginForm',
+     component: LoginForm,
    },
    {
-     path: '/Signup',
-     component: Signup,
+     path: '/SignupForm',
+     component: SignupForm,
    },
    {
      path: '/TheHeader',
