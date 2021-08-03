@@ -7,7 +7,7 @@
       <router-link to="/Signup" class="router-link-active">Sign up</router-link>
     </nav>
 
-    <form @submit="trySubmit" class="signup-form" >
+    <form @submit="trySubmit" class="signup-form" id="signup" >
         <label for="signup-firstname">Firstname:</label>
         <input  v-model="form.firstname" type="text" id="signup-firstname"/>
       
@@ -27,7 +27,7 @@
           <b>Please correct the following error(s):</b>
           <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
         </ul>
-        
+         <div class="validate-message">{{message}}</div>
         <button id="signup-btn" type="submit">Submit</button>
     </form>
   </div>
@@ -44,6 +44,7 @@ export default {
         email: '',
         password: ''
       },
+      message:"",
       errors: []
       }
     },
@@ -54,9 +55,12 @@ export default {
        this.$http.post('http://localhost:3000/api/auth/signup', this.form )
      .then(res => {
         if(res.status === 201) {
-          localStorage.setItem('user', JSON.stringify(res.data));
-          this.$router.push('/Home');
-          console.log(localStorage.user)
+          this.message = "You account has been created, please login.";
+          this.form.firstname= "";
+          this.form.lastname= "";
+          this.form.email= "";
+          this.form.password= "";
+          this.form.passwordVerification="";
       }
     })
      .catch(err => {this.errors.push(err.response.data.error)});
@@ -137,16 +141,21 @@ export default {
   font-weight: bold;
 }
 
+.signup-form button:hover {
+  transform: scale(1.03);
+  transition: 0.6s;
+}
+
 nav {
   cursor: pointer;
   font-size: 1.6rem;
 }
+
 .router-link-active,
-.error-message      {
+.error-message {
   color: #fd2d01;
   font-weight: bold;
   text-decoration: none;
-  
 }
 
 .router-link-inactive {
@@ -154,5 +163,9 @@ nav {
   color:#333;
   font-weight: bold;
   
+}
+.validate-message {
+  color: green;
+  font-weight: bold;
 }
 </style>
