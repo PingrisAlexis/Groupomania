@@ -3,7 +3,7 @@ const express = require('express');
 //Import authentification .
 const auth = require('../middleware/auth');
 //Import Multer to manage images.
-const multer = require("../middleware/multer");
+const multer = require("../middleware/multer-config");
 //Call of the express router with the method.
 const router = express.Router();
 
@@ -20,5 +20,6 @@ router.delete('/:id', auth, multer, postCtrl.deleteOnePost);
 router.get('/:id', auth, postCtrl.getOnePost);
 //Route to get all post.
 router.get('/', auth, postCtrl.getAllPost);
-
+//Route to get an user's posts.
+router.get('/user:id/posts', auth, postCtrl.getUserPosts);
 module.exports = router;

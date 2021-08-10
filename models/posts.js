@@ -1,48 +1,90 @@
-const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('posts', {
-    id: {
-      autoIncrement: true,
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-      primaryKey: true
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    media: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    userId: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: true,
-      references: {
-        model: 'users',
-        key: 'id'
+// const util = require('util');
+const db = require("../database_connect");
+
+const Post = function(post) {
+  this.userId= post.userId,
+  this.title=post.title,
+  this.message=post.message,
+  this.media=post.media,
+  this.createdAt=post.createdAt
+}
+
+
+//Middleware to create a post.
+Post.createOnePost = (req, res, next) => {
+  let  media = req.protocol + '://' + req.get('host') + '/images/' + req.file.filename;
+  db.query(`INSERT INTO posts VALUES (NULL,'${req.body.userId}','${req.body.title}','${req.body.message}','${media}', NOW())`,
+    (error, result) => {
+      if (error) {
+        res.status(400).json({ error });
       }
+      else {
+        res.status(201).json(result);
+      }
+    });
+};
+
+//Middleware to modify a post.
+Post.modifyOnePost = (req, res, next) => {
+  db.query(`UPDATE posts SET message = '${req.body.message}', media = '${req.body.media}' WHERE posts.id = '${req.params.id}'`,
+    (error, result) => {
+      if (error) {
+        res.status(400).json({ error });
+      }
+      else {
+        res.status(200).json(result);
+      }
+    });
+};
+
+//Middleware to delete a post.
+Post.deleteOnePost = (req, res, next) => {
+  db.query(`DELETE FROM posts WHERE posts.id = ${req.params.id}`,
+    (error, result) => {
+      if (error) {
+        res.status(400).json({ error });
+      }
+      else {
+        res.status(200).json(result);
+      }
+    });
+};
+
+//Middleware to get one post.
+Post.getOnePost = (req, res, next) => {
+  db.query(`SELECT * FROM posts WHERE posts.id = ${req.params.id}`,
+    (error, result) => {
+      if (error) {
+        res.status(400).json({ error });
+      }
+      else {
+        res.status(200).json(result);
+      }
+    });
+};
+
+//Middleware to get all posts.
+Post.getAllPost = (req, res, next) => {
+  db.query('SELECT users.lastname, users.firstname, users.avatar, posts.id, posts.userId, posts.title, posts.message, posts.media, posts.createdAt  FROM users INNER JOIN posts ON users.id = posts.userId ORDER BY id DESC',
+    (error, result) => {
+      if (error) {
+        res.status(400).json({ error });
+      }
+      else {
+        res.status(200).json(result);
+      }
+    });
+};
+
+//Middleware to get an user's posts.
+Post.getUserPosts = (req, res, next) => {
+  db.query(`SELECT * FROM posts WHERE posts.userId = ${req.params.id}`,
+  (error, result) => {
+    if (error) {
+      res.status(400).json({ error });
     }
-  }, {
-    sequelize,
-    tableName: 'posts',
-    timestamps: true,
-    indexes: [
-      {
-        name: "PRIMARY",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "id" },
-        ]
-      },
-      {
-        name: "fk_posts_userId",
-        using: "BTREE",
-        fields: [
-          { name: "userId" },
-        ]
-      },
-    ]
+    else {
+      res.status(200).json(result);
+    }
   });
 };
