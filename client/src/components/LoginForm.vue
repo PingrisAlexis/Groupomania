@@ -1,13 +1,14 @@
 <template class="template">
   <div class="login-contenair">
-    <img src="../assets/groupomania-logo-center.png" alt="Logo Groupomania">
-    <nav>
-      <router-link to="/Login" class="router-link-active">Log in</router-link> 
-      |
-      <router-link to="/Signup" class="router-link-inactive">Sign up</router-link>
-    </nav>
-    
    <form @submit="trySubmit" class="login-form" >
+     <div class="login-form-img-contenair">
+        <img src="../assets/groupomania-local.png" alt="Logo Groupomania">
+     </div>
+      <nav>
+        <router-link to="/LoginForm" class="router-link-active">Log in</router-link> 
+       |
+        <router-link to="/SignupForm" class="router-link-inactive">Sign up</router-link>
+      </nav>
         <label for="login-email">E-mail:</label>
         <input v-model="form.email"  type="email" id="login-email"/>
 
@@ -18,7 +19,7 @@
             <b>Please correct the following error(s):</b>
           <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
         </ul>
-        <button id="login-btn type" type="submit">Submit</button>
+        <button id="login-btn type" type="submit"><i class="fas fa-check"></i></button>
     </form>
     
   </div>
@@ -65,36 +66,34 @@ export default {
 </script>
 
 <style scoped>
-.template {
-    height: 100%;
-  max-width: 100%;
-
-}
 
 .login-contenair {
-  height: 100%;
-  max-width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  width: 30rem;
+ margin: auto;
 }
-
-.login-contenair img {
-  width:25rem;
-}
-
-.login-contenair nav {
-  margin-bottom: 1rem;
-}
-
 .login-form {
   display:flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 1rem;
-  
+  box-shadow: 0 0.5rem 0.5rem #d8d8d8;
+  border-radius: 3rem;
+  margin-top: 2rem;
+}
+
+.login-form img {
+  width: 100%;
+  border-top-left-radius: 3rem;
+  border-top-right-radius: 3rem;
+}
+
+
+.login-contenair nav {
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  font-size: 1.6rem;
 }
 
 .login-form input{
@@ -108,23 +107,25 @@ export default {
   cursor: pointer;
   width: 15rem;
   height: 3.5rem;
-  border-radius: 0.5rem;
+  border-radius: 3rem;
   font-size: 1.6rem;
-  margin-top: 2rem;
-  background-color: #ffffff;
-  color: #fd2d01;
+  background-color: #192a56;
+  color: #ffffff;
   font-weight: bold;
+  margin-bottom: 1rem;
 }
+
 .login-form button:hover {
   transform: scale(1.03);
   transition: 0.6s;
 }
-nav {
-  cursor: pointer;
-  font-size: 1.6rem;
-}
 
-.router-link-active,
+.router-link-active {
+  font-size: 2rem;
+  color: #333;
+  font-weight: bold;
+  text-decoration: none;
+}
 .error-message  {
   color: #fd2d01;
   font-weight: bold;
@@ -135,6 +136,11 @@ nav {
   text-decoration: none;
   color:#333;
   font-weight: bold;
-  
+}
+
+ul {
+  text-align: center;
+  list-style:none;
+  margin-right: 3rem;
 }
 </style>
