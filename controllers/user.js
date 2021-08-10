@@ -8,7 +8,7 @@ const cryptojs = require('crypto-js');
 const db = require("../database_connect");
 
 //Middleware to create a new user account.
-exports.signup = (req, res) => {
+exports.signupOneUser = (req, res) => {
   let regexEmail = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   let regexName = /^[a-zA-Z]+(?:-[a-zA-Z]+)*$/;
   if (regexEmail.test(req.body.email) === false) {
@@ -53,7 +53,7 @@ exports.signup = (req, res) => {
 };
 
 //Middleware to login a user account.
-exports.login = (req, res, next) => {
+exports.loginOneUser = (req, res, next) => {
   const cryptedEmail = cryptojs.HmacSHA256(req.body.email, process.env.CRPT_MAIL).toString();
   db.query(`SELECT * FROM users WHERE email='${cryptedEmail}'`,
     (error, result, rows) => {
@@ -85,7 +85,7 @@ exports.login = (req, res, next) => {
 };
 
 //Middleware to delete a user account.
-exports.delete = (req, res, next) => {
+exports.deleteOneUser = (req, res, next) => {
   db.query(`DELETE FROM users WHERE users.id = ${req.params.id}`,
     (error, result) => {
       if (error) {
@@ -97,12 +97,25 @@ exports.delete = (req, res, next) => {
     });
 };
 
-//Middleware to search  usern account.
-exports.search = (req, res, next) => {
+//Middleware to search a user account.
+exports.searchOneUser = (req, res, next) => {
   db.query(`SELECT * FROM users WHERE users.id = ${req.params.id}`,
     (error, result) => {
       if (error) {
         res.status(400).json({ error })
+      }
+      else {
+        res.status(200).json(result);
+      }
+    });
+};
+
+exports.modifyOneUser = (req, res, next) => {
+  let  avatar = req.protocol + '://' + req.get('host') + '/images/' + req.file.filename;
+  db.query(`UPDATE users SET avatar = '${avatar}' WHERE users.id = '${req.params.id}'`,
+    (error, result) => {
+      if (error) {
+        res.status(400).json({ error });
       }
       else {
         res.status(200).json(result);
