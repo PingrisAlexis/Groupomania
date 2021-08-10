@@ -54,9 +54,10 @@ exports.getOnePost = (req, res, next) => {
     });
 };
 
+// INNER JOIN users ON posts.userId = users.id 
 //Middleware to get all posts.
 exports.getAllPost = (req, res, next) => {
-  db.query(`SELECT * FROM posts ORDER BY id DESC`,
+  db.query('SELECT users.lastname, users.firstname, users.avatar, posts.id, posts.userId, posts.title, posts.message, posts.media, posts.createdAt  FROM users INNER JOIN posts ON users.id = posts.userId ORDER BY id DESC',
     (error, result) => {
       if (error) {
         res.status(400).json({ error });
@@ -67,4 +68,15 @@ exports.getAllPost = (req, res, next) => {
     });
 };
 
-
+//Middleware to get an user's posts.
+exports.getUserPosts = (req, res, next) => {
+  db.query(`SELECT * FROM posts WHERE posts.userId = ${req.params.id}`,
+  (error, result) => {
+    if (error) {
+      res.status(400).json({ error });
+    }
+    else {
+      res.status(200).json(result);
+    }
+  });
+};

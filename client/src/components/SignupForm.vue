@@ -1,13 +1,14 @@
 <template class="template">
   <div class="signup-contenair">
-    <img src="../assets/groupomania-logo-center.png" alt="Logo Groupomania">
-    <nav>
-      <router-link to="/Login" class="router-link-inactive">Log in</router-link> 
+    <form @submit="trySubmit" class="signup-form" id="signup">
+      <div class="signup-form-img-contenair">
+        <img src="../assets/groupomania-local.png" alt="Logo Groupomania">
+      </div>
+      <nav>
+      <router-link to="/LoginForm" class="router-link-inactive">Log in</router-link> 
       | 
-      <router-link to="/Signup" class="router-link-active">Sign up</router-link>
+      <router-link to="/SignupForm" class="router-link-active">Sign up</router-link>
     </nav>
-
-    <form @submit="trySubmit" class="signup-form" id="signup" >
         <label for="signup-firstname">Firstname:</label>
         <input  v-model="form.firstname" type="text" id="signup-firstname"/>
       
@@ -28,13 +29,12 @@
           <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
         </ul>
          <div class="validate-message">{{message}}</div>
-        <button id="signup-btn" type="submit">Submit</button>
+        <button id="signup-btn" type="submit"><i class="fas fa-check"></i></button>
     </form>
   </div>
 </template>
 
 <script>
-
 export default {
   data() {
     return {
@@ -81,7 +81,7 @@ export default {
       this.errors.push('Password is required');
     }
     if (this.form.password != this.form.passwordVerification) {
-      this.errors.push('Password is not identical');
+      this.errors.push('Password is not validate');
     }
     return this.errors.length ? false : true;
   }
@@ -91,35 +91,32 @@ export default {
 </script>
 
 <style scoped>
-.template {
-  height: 100%;
-  max-width: 100%;
-}
-
-.signup-contenair {
-  height: 100%;
-  max-width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.signup-contenair img {
-  width:25rem;
-}
-
-.signup-contenair nav {
-  margin-bottom: 1rem;
-}
-
 .signup-form {
-  display:flex;
+ display:flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 1rem;
-  
+  box-shadow: 0 0.5rem 0.5rem #d8d8d8;
+  border-radius: 3rem;
+  width: 30rem;
+  margin: auto;
+  margin-top: 2rem;
+}
+
+.signup-form img {
+  width: 100%;
+  border-top-left-radius: 3rem;
+  border-top-right-radius: 3rem;
+}
+
+
+
+.signup-contenair nav {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  font-size: 1.6rem;
 }
 
 .signup-form input{
@@ -133,12 +130,12 @@ export default {
   cursor: pointer;
   width:15rem;
   height: 3.5rem;
-  border-radius: 0.5rem;
+  border-radius: 3rem;
   font-size: 1.6rem;
-  margin-top: 2rem;
-  background-color: #ffffff;
-  color: #fd2d01;
+  background-color: #192a56;
+  color: #ffffff;
   font-weight: bold;
+  margin-bottom: 1rem;
 }
 
 .signup-form button:hover {
@@ -146,12 +143,12 @@ export default {
   transition: 0.6s;
 }
 
-nav {
-  cursor: pointer;
-  font-size: 1.6rem;
+.router-link-active {
+  font-size: 2rem;
+  color: #333;
+  font-weight: bold;
+  text-decoration: none;
 }
-
-.router-link-active,
 .error-message {
   color: #fd2d01;
   font-weight: bold;
@@ -167,5 +164,12 @@ nav {
 .validate-message {
   color: green;
   font-weight: bold;
+}
+
+ul {
+  text-align: center;
+  list-style:none;
+  margin-right: 2.9rem;
+  
 }
 </style>

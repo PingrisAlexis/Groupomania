@@ -1,25 +1,26 @@
 <template>
   <div class="add-post-contenair">
     <form  @submit="trySubmit">
-        <div class="add-post-form-group">
-          <label>Title:</label>
-          <input v-model="title" type="text" name="title" class="title" />
-        </div>
-        <div class="add-post-form-group">
-          <label>Message:</label>
-          <vue-editor class="add-post-vue-editor" v-model="message" :editorToolbar="customToolbar"></vue-editor>
-        </div>
-        <div >
-          <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="File" accept=".jpg, .jpeg, .gif, .png">
-        </div>
-        <ul v-if="errors.length">
-          <b>Please correct the following error(s):</b>
-          <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
-        </ul>
-          <div class="validate-message">{{messagePostValidation}}</div>
-        <div class="add-post-form-btn-container">
-         <button class="btn-submit">Submit</button>
-        </div>
+      <div id="preview">
+          <img v-if="url" :src="url" />
+          <img v-else src="../assets/groupomania-local.png">
+      </div>
+      <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="File" accept=".jpg, .jpeg, .gif, .png">
+      <div class="add-post-form-group">
+        <label>Title:</label>
+        <input v-model="title" type="text" name="title" class="title" />
+        <label>Message:</label>
+        <vue-editor cols="30" rows="10" class="add-post-vue-editor" v-model="message" :editorToolbar="customToolbar"></vue-editor>
+        <!-- <textarea name="" id="" cols="30" rows="10"></textarea> -->
+      </div>
+      <ul v-if="errors.length">
+        <b>Please correct the following error(s):</b>
+        <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
+      </ul>
+      <div class="validate-message">{{messagePostValidation}}</div>
+      <div class="add-post-form-btn-container">
+        <button class="btn-submit"><i class="far fa-envelope"></i></button>
+      </div>
     </form>
   </div>
 </template>
@@ -40,6 +41,7 @@ data() {
       ['strike'],
       // ['clean'],
     ],
+     url: null,
     userId:this.$user.userId,
     title:"",
     message:"",
@@ -75,86 +77,88 @@ data() {
             'Authorization': `Bearer ${this.$token}`
           }
         })
-     .then(res => {
-        if(res.status === 201) {
-          this.messagePostValidation = "Your post has been created!";
-          this.title = "";
-          this.message = "";
-          this.image = null;
+        .then(res => {
+          if(res.status === 201) {
+            this.messagePostValidation = "Your post has been created!";
+            this.title = "";
+            this.message = "";
+            this.image = null;
+          }
+        })
+        .catch(err => {this.errors.push(err.response.data.error)});
+        }
+      },
+    AddPostIsValid() {
+      this.errors = [];
+      if (!this.title) {
+        this.errors.push('Title is required.');
       }
-    })
-    .catch(err => {this.errors.push(err.response.data.error)});
+      if (!this.message) {
+        this.errors.push('Message is required.');
+      }
+      if (!this.image) {
+        this.errors.push('Image is required.');
+      }
+      return this.errors.length ? false : true;
+    },
+    upload() {
+      this.image = this.$refs.image.files[0];
+      this.url = URL.createObjectURL(this.image);
     }
-  },
-  AddPostIsValid() {
-    this.errors = [];
-    if (!this.title) {
-      this.errors.push('Title is required.');
-    }
-    if (!this.message) {
-      this.errors.push('Message is required.');
-    }
-    return this.errors.length ? false : true;
-  },
-  upload() {
-      this.image = this.$refs.image.files[0]; 
-  }
-}
-    
+  }   
 };
 </script>
+
 <style scoped>
-.add-post-vue-editor, .title {
-  border: 0.1rem solid black !important;
-  outline:none;
-}
-
-input[type="file" i] {
-  color: #fd2d01;
-  font-weight: bold;
-}
-
 .add-post-contenair {
+  margin: auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  padding-top: 2rem;
-}
+  border-radius: 3rem;
+  max-width: 29rem;
+  box-shadow: 0 0.5rem 0.5rem #d8d8d8;
+  flex-flow: row wrap;
 
-.add-post-contenair form {
-  width: 40rem;
-    padding: 4rem;
-    border-radius: 3px;
-    display: flex;
-    flex-direction: column;
-    border: 0.2rem solid #fd2d01;
-    font-size: 1rem;
-    border-top: none;
-    border-bottom: none;
-    border-right: none;
 }
-
 .add-post-form-group {
-    display: flex;
-    flex-direction: column-reverse;
-}
-
-.add-post-form-group {
-  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
+.vue-editor{
+  resize:vertical;
+  
+}
+.add-post-vue-editor {
+  outline:none;
+  border: #333;
+  width: 400px;
+}
+
+.title {
+  outline:none; 
+}
+
+#preview img {
+  max-width: 100%;
+  border-radius: 3rem 3rem 0rem 0rem;
+  max-height: 15rem;
+  object-fit: cover;
+}
+
+input[type="file" i] {
+  color: #333;
+  font-weight: bold;
+}
+
+
 
 .add-post-form-group label {
   text-align: center;
   font-size: 1.4rem;
   font-weight: bold;
-  color: #fd2d01;
-}
-
-.add-post-form-group input {
-  height: 2rem;
 }
 
 .add-post-form-group input,
@@ -165,9 +169,8 @@ input[type="file" i] {
 }
 
 .add-post-form-btn-container {
-  width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
 }
 
 button {
@@ -175,20 +178,17 @@ button {
   width:15rem;
   height: 3.5rem;
   border-radius: 0.5rem;
-  font-size: 1.4rem;
-  margin-top: 2rem;
-  font-weight: bold;
-  
-}
-
-.btn-submit {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
   background-color: #ffffff;
-  color: #fd2d01;
+  color: #333;
+  margin: 1rem;
 }
 
 .btn-submit:hover {
   transform: scale(1.03);
   transition: 0.6s;
+  color: #333;
 }
 
 .error-message {
@@ -201,5 +201,19 @@ button {
   color: green;
   font-weight: bold;
   text-align: center;
+  font-size: 1rem;
+}
+
+ul {
+  text-align: center;
+  list-style:none;
+  padding-right: 40px;
+  font-size: 1rem;
+}
+
+#preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

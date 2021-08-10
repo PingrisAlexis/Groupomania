@@ -1,19 +1,19 @@
 <template>
   <div>
     <the-header></the-header>
-    <one-post></one-post>
+    <all-post></all-post>
   </div>
 </template>
 
 <script>
 import TheHeader from '../components/TheHeader.vue';
-import OnePost from '../components/OnePost.vue';
+import AllPost from '../components/AllPost.vue';
 
 export default {
   name:'Home',
   components: {
     TheHeader,
-    OnePost
+    AllPost
   },
 };
 </script>
