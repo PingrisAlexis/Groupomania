@@ -10,7 +10,7 @@ import SignupForm from './components/SignupForm';
 import PostForm from './components/PostForm';
 import TheHeader from './components/TheHeader';
 import UserAccount from './components/UserAccount';
-import OnePost from './components/OnePost';
+import AllPost from './components/AllPost';
 
 Vue.use(VueRouter);
 
@@ -59,9 +59,9 @@ export default new VueRouter({
     component: PostForm,
   },
   {
-    path:'/OnePost',
-    name:'OnePost',
-    component: OnePost,
+    path:'/AllPost',
+    name:'AllPost',
+    component: AllPost,
   },
  ]
 });
