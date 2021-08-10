@@ -4,6 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 //Import Helmet package: To secure Express apps by setting various HTTP headers.
 const helmet = require("helmet");
+//Import Patch: To work with file and directory paths.
+const path = require('path');
 //Import Dot env package: To mask connections informations.
 require('dotenv').config();
 //Create Express application.
@@ -28,6 +30,9 @@ const userRoutes = require('./routes/user');
 const postRoutes = require('./routes/post');
 //Import comment routes.
 const commentRoutes = require('./routes/comment');
+
+//To load files that are in the images directory.
+app.use('/images', express.static(path.join(__dirname, 'images')));
 //Serve the route for user.
 app.use('/api/auth', userRoutes);
 //Serve the route for post.
