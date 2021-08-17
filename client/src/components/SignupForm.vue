@@ -14,16 +14,16 @@
       
         <label for="signup-lastname">Lastname:</label>
         <input v-model="form.lastname" type="text" id="signup-lastname"/>
-        
+
         <label for="signup-email">E-mail:</label>
         <input v-model="form.email" type="email" id="signup-email"/>
-
+        
         <label for="signup-password">Password:</label>
         <input v-model="form.password" type="password" id="signup-password"/>
-        
+
         <label for="signup-password-verification">Password verification:</label>
         <input  v-model="form.passwordVerification"  type="password" id="signup-password-verification"/>
-        
+
         <ul v-if="errors.length">
           <b>Please correct the following error(s):</b>
           <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
@@ -55,7 +55,7 @@ export default {
        this.$http.post('http://localhost:3000/api/auth/signup', this.form )
      .then(res => {
         if(res.status === 201) {
-          this.message = "You account has been created, please login.";
+          this.message = "Your account has been created, please login.";
           this.form.firstname= "";
           this.form.lastname= "";
           this.form.email= "";
@@ -87,7 +87,6 @@ export default {
   }
 }
 }
-
 </script>
 
 <style scoped>
@@ -97,7 +96,7 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 1rem;
-  box-shadow: 0 0.5rem 0.5rem #d8d8d8;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
   border-radius: 3rem;
   width: 30rem;
   margin: auto;
@@ -109,8 +108,6 @@ export default {
   border-top-left-radius: 3rem;
   border-top-right-radius: 3rem;
 }
-
-
 
 .signup-contenair nav {
   margin-top: 1rem;
@@ -164,6 +161,7 @@ export default {
 .validate-message {
   color: green;
   font-weight: bold;
+  margin-bottom: 1rem;
 }
 
 ul {

@@ -11,7 +11,6 @@
         <input v-model="title" type="text" name="title" class="title" />
         <label>Message:</label>
         <vue-editor cols="30" rows="10" class="add-post-vue-editor" v-model="message" :editorToolbar="customToolbar"></vue-editor>
-        <!-- <textarea name="" id="" cols="30" rows="10"></textarea> -->
       </div>
       <ul v-if="errors.length">
         <b>Please correct the following error(s):</b>
@@ -41,8 +40,7 @@ data() {
       ['strike'],
       // ['clean'],
     ],
-     url: null,
-    userId:this.$user.userId,
+    url: null,
     title:"",
     message:"",
     createdAt:"",
@@ -54,7 +52,7 @@ data() {
   methods: {
     trySubmit(e) {
       e.preventDefault();
-      if (this.AddPostIsValid() ) {
+      if (this.postIsValid() ) {
         const signupDate = new Date();
         const createdAt = signupDate.toLocaleString('en-GB',{
           year: 'numeric',
@@ -62,15 +60,14 @@ data() {
           day: 'numeric',
           hour: 'numeric',
           minute: 'numeric'});
-          
+
         const formData = new FormData();
-        formData.append("userId", this.userId);
+        console.log(formData)
+        formData.append("userId", this.$user.userId);
         formData.append("title", this.title);
         formData.append("message", this.message);
         formData.append("image", this.image, this.image.name);
         formData.append("createdAt", createdAt);
-        console.log(this.image)
-        
         this.$http.post('http://localhost:3000/api/posts', formData,{
           headers: {
             'Content-Type': 'application/json',
@@ -78,7 +75,7 @@ data() {
           }
         })
         .then(res => {
-          if(res.status === 201) {
+          if(res.status === 200) {
             this.messagePostValidation = "Your post has been created!";
             this.title = "";
             this.message = "";
@@ -88,7 +85,7 @@ data() {
         .catch(err => {this.errors.push(err.response.data.error)});
         }
       },
-    AddPostIsValid() {
+    postIsValid() {
       this.errors = [];
       if (!this.title) {
         this.errors.push('Title is required.');
@@ -117,7 +114,7 @@ data() {
   align-items: center;
   border-radius: 3rem;
   max-width: 29rem;
-  box-shadow: 0 0.5rem 0.5rem #d8d8d8;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
   flex-flow: row wrap;
 
 }

@@ -77,7 +77,7 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 1rem;
-  box-shadow: 0 0.5rem 0.5rem #d8d8d8;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
   border-radius: 3rem;
   margin-top: 2rem;
 }

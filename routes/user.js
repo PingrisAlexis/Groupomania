@@ -18,8 +18,10 @@ router.post('/signup', passwordValidation, userCtrl.signupOneUser);
 router.post('/login', userCtrl.loginOneUser);
 //Route to delete a user.
 router.delete('/:id',auth, userCtrl.deleteOneUser);
-//Route to search a user.
-router.get('/:id', auth, userCtrl.searchOneUser);
+//Route to get a user.
+router.get('/:id', auth, userCtrl.getOneUser);
+//Route to get all users.
+router.get('/', auth, userCtrl.getAllUsers);
 //Route to modify a user
 router.put('/:id', auth, multer, userCtrl.modifyOneUser);
 
