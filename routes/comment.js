@@ -14,7 +14,7 @@ router.post('/', auth, commentCtrl.createOneComment);
 router.put('/:id', auth, commentCtrl.modifyOneComment);
 //Route to delete a comment.
 router.delete('/:id', auth, commentCtrl.deleteOneComment);
-//Route to get all commment.
-router.get('/', auth, commentCtrl.getAllcomment);
+//Route to get all commments.
+router.get('/', auth, commentCtrl.getAllComments);
 
 module.exports = router;
