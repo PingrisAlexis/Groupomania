@@ -7,13 +7,13 @@
       <img v-else src="../assets/random-user.png">
     </div>
       <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="File" accept=".jpg, .jpeg, .gif, .png">
-    
     </div>
     <div class="user-data">
-      <span >{{this.$user.lastname}} {{this.$user.firstname}}</span>
+      <div class="user-data-name">
+        <span id="user-lastname" >{{this.$user.lastname}}</span>
+        <span id="user-firstname"> {{this.$user.firstname}}</span>
+      </div>
       <span>Account N° {{this.$user.userId}}</span>
-      <span>Creation: The {{this.$user.createdAt}}</span>
-      <span> {{this.$user.mail}}</span>
     </div>
     <ul v-if="errors.length">
         <b>Please correct the following error(s):</b>
@@ -43,7 +43,8 @@ export default {
   },
   methods: {
     trySubmit() {
-      if (this.AddProfilImageIsValid() ) { 
+      if (this.AddProfilImageIsValid() ) {
+        this.$user.avatar= this.image;
         const formData = new FormData();
         formData.append("image", this.image, this.image.name);
         this.$http.put(`http://localhost:3000/api/auth/${this.$user.userId}`, formData,{
@@ -53,22 +54,20 @@ export default {
           }
         })
         .then(res => {
-          if(res.status === 200) {
-            this.image = null;
+          if(res.status === 201) {
             document.location.reload();
-            
           }
         })
         .catch(err => {this.errors.push(err.response.data.error)});
         }
-      },
+    },
     AddProfilImageIsValid() {
       this.errors = [];
       if (!this.image) {
-        this.errors.push('Image is not upload.');
+        this.errors.push('There is no image to upload.');
       }
       return this.errors.length ? false : true;
-    },
+    }, 
     deleteUser(){
       this.$http.delete(`http://localhost:3000/api/auth/${this.$user.userId}`,
         {
@@ -95,8 +94,7 @@ export default {
         }
       )
       .then(res => {
-        this.user = res.data.[0];
-        console.log(this.user.media);
+        this.user = res.data;
       })
       .catch(err => {this.errors.push(err.response.data.error)});
     }
@@ -119,16 +117,18 @@ template {
   align-items: center;
   border-radius: 3rem;
   max-width: 25rem;
-  box-shadow: 0 0.5rem 0.5rem #d8d8d8;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
   flex-flow: row wrap;
   flex-direction: column;
   margin-top: 3rem;
 }
+
 .user-account-img-contenair {
   background: #f1f2f6;
   width: 100%;
   border-radius: 3rem 3rem 0rem 0rem;
 }
+
 #preview img {
  border-radius: 50%;
   height: 10rem;
@@ -141,8 +141,15 @@ template {
 
 span, label {
   font-size: 1.2rem;
-  margin-top:1rem;
-  
+  margin-top:1rem; 
+}
+
+#user-lastname {
+  text-transform: uppercase;
+}
+
+#user-firstnamer {
+  text-transform: capitalize;
 }
 
 .user-account-modify-user,
@@ -188,11 +195,11 @@ span, label {
   border-radius: 75px;
 }
 
-
-
 .user-data {
  display: flex;
- flex-direction: column; 
+ flex-direction: column;
+ margin-left:-15rem;
+ margin-top:1rem;
 }
 .error-message {
   color: #fd2d01;
