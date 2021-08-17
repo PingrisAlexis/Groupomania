@@ -7,13 +7,13 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    message: {
+    comment: {
       type: DataTypes.STRING(255),
       allowNull: false
     },
     postId: {
       type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'posts',
         key: 'id'
@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     userId: {
       type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'users',
         key: 'id'
@@ -30,7 +30,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'comments',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
@@ -41,17 +41,17 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "fk_comments_userId",
-        using: "BTREE",
-        fields: [
-          { name: "userId" },
-        ]
-      },
-      {
         name: "fk_comments_postId",
         using: "BTREE",
         fields: [
           { name: "postId" },
+        ]
+      },
+      {
+        name: "fk_comments_userId",
+        using: "BTREE",
+        fields: [
+          { name: "userId" },
         ]
       },
     ]
