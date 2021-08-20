@@ -1,7 +1,7 @@
 <template>
 <div class="one-post-contenair">
   <article  v-for = "post in posts" :key = "post.id">
-    <header class="one-post-info-contenair"  v-for = "user in users" :key = "user.id">    
+    <header class="one-post-info-contenair"  v-for = "user in users" :key = "user.id">
       <div class="one-post-info-user" v-if="user.id === post.userId">
         <img v-if="user.avatar" :src="user.avatar" alt="Profil image" :key="user.avatar" class="one-post-info-image">
         <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil image" class="one-post-info-image">
@@ -47,8 +47,7 @@ export default {
         }
       )
       .then(res => {
-        this.posts = res.data;
-        console.log(this.posts);        
+        this.posts = res.data;      
       })
       .catch(err => {this.errors.push(err.response.data.error)});
     },
@@ -63,7 +62,6 @@ export default {
       )
       .then(res => {
         this.users = res.data;
-        console.log(this.users)
       })
       .catch(err => {this.errors.push(err.response.data.error)});
     },
