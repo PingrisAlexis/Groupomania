@@ -38,14 +38,13 @@ export default {
   height: 8.5rem;
   width: 100vw;
   object-fit: cover;
-  
 }
 
 .banner nav {
   font-size: 1.6rem;
   list-style-type: none;
   position: relative;
-  bottom: 3.1rem;
+  bottom: 2.5rem;
   color:#ffffff;
 }
 
@@ -62,12 +61,6 @@ a {
   font-weight: bold;
 }
 
-.active {
-  transform: scale(1.2);
-  transition: 0.6s;
-  font-size: 3rem;
-  
-}
 
 .fa-power-off {
   font-size: 2rem !important;

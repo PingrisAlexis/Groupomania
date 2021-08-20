@@ -2,7 +2,7 @@
 <div >
   <article  v-for = "user in users" :key = "user.id">
     <div class="post-contenair"  v-if="user.id === post.userId">
-      <header>
+      <header class="post-contenair-header">
         <img v-if="user.avatar" :src="user.avatar" alt="Profil image" :key="user.avatar" class="one-post-info-image">
         <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil image" class="one-post-info-image">
         <div class="post-header-info">
@@ -23,11 +23,19 @@
         </section>
       </main>
       <footer>
+         <div  v-for = "comment in comments" :key = "comment.id">
+           <div class="one-post-info-user" v-if="user.id === comment.userId">
+           <p class="comment">{{comment.comment}} </p>
+           <p>{{user.lastname}}</p>
+           </div>
+         </div>
+        
         <form @submit="trySubmitComment" class="post-footer-add-comment">
           <label for="add-comment"></label>
-            <textarea v-model="comment" id="add-comment"  cols="50" rows="4" placeholder=" Add a comment:"></textarea>
+            <textarea v-model="comment" id="add-comment"  cols="50" rows="4" placeholder=" Write a comment:"></textarea>
           <button class="btn-submit"><i class="far fa-envelope"></i></button>   
         </form>
+           
         <ul  v-if="errors.length">
           <b>Please correct the following error(s):</b>
           <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
@@ -45,13 +53,14 @@ export default {
       post: [],
       users: [],
       comment: "",
-      errors: []
+      errors: [],
+      comments: []
     }
   },
   mounted() {
     this.getOnePost();
     this.getAllUsers();
-    // this.getAllComments();
+    this.getAllComments();
   },
   methods: {
     getOnePost() {
@@ -66,6 +75,7 @@ export default {
       )
       .then(res => {
         this.post = res.data;
+        console.log(this.post)
       })
       .catch(err => {this.errors.push(err.response.data.error)});
     },
@@ -80,6 +90,7 @@ export default {
       )
       .then(res => {
         this.users = res.data;
+        console.log(this.users)
       })
       .catch(err => {this.errors.push(err.response.data.error)});
     },
@@ -87,34 +98,34 @@ export default {
     e.preventDefault();
     
     if (this.commentIsValid() ) {
-    const postId = this.$route.params.id;
-    const commentDate = new Date();
-    const createdAt = commentDate.toLocaleString('en-GB',{
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric'});
-              
-    const formData = new FormData();
-    formData.append("userId", this.$user.userId);
-    console.log(this.$user.userId)
-    formData.append("postId", postId);
-    console.log(postId)
-    formData.append("comment", this.comment);
-    console.log(this.comment)
-    formData.append("createdAt", createdAt);
-      
-    this.$http.post('http://localhost:3000/api/comments/', formData,{
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.$token}`
+      var routePostId = parseInt(this.$route.params.id);
+      var commentUserId = this.$user.userId;
+      var commentValue = this.comment;
+      var date = new Date();
+      const commentDate = date.toLocaleString('en-GB', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'});
+
+      const formData = { 
+        userId: commentUserId,
+        postId: routePostId,
+        comment: commentValue,
+        createdAt: commentDate
+      };
+      this.$http.post(`http://localhost:3000/api/posts/${routePostId}/comments/`, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.$token}`
       }
     })
     .then (res => {
       if(res.status === 200) {
         this.comment="";
-        console.log(formData)
+        this.getAllComments();
+        this.getAllUsers();
       }
     })
     .catch( err => {this.errors.push( err.response.data.error)});
@@ -123,24 +134,27 @@ export default {
   commentIsValid() {
       this.errors = [];
       if (!this.comment) {
-        this.errors.push('Please, write a comment before submit.');
+        this.errors.push('Write a comment before submit.');
       }
       return this.errors.length ? false : true;
     },
-    // getAllComments(){
-    //    this.$http.get('http://localhost:3000/api/auth/',
-    //     {
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //         'Authorization': `Bearer ${this.$token}`
-    //       }
-    //     }
-    //   )
-    //   .then(res => {
-    //     this.comments = res.data;
-    //   })
-    //   .catch(err => {this.errors.push(err.response.data.error)});
-    // },
+    getAllComments() {
+      var routePostId = parseInt(this.$route.params.id);
+      
+      this.$http.get(`http://localhost:3000/api/posts/${routePostId}/comments/`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.$token}`
+          }
+        }
+      )
+      .then(res => {
+        this.comments = res.data;
+        console.log(this.comments)
+      })
+      .catch(err => {this.errors.push(err.response.data.error)});
+    },
   },
 }
 </script>
@@ -153,7 +167,7 @@ export default {
   align-items: center;
 }
 
-header {
+.post-contenair-header {
   display: flex;
   background: #f1f2f6;
   border-radius: 3rem;
@@ -162,7 +176,7 @@ header {
 
 }
 
-header img {
+.post-contenair-header img {
   border-radius: 50%;
   height: 6rem;
   width: 6rem;
@@ -247,5 +261,10 @@ textarea {
 
 ul {
   font-size: 1rem;
+}
+
+.comment {
+  font-size: 1rem;
+  background: #f1f2f6;
 }
 </style>

@@ -62,13 +62,13 @@ data() {
           minute: 'numeric'});
 
         const formData = new FormData();
-        console.log(formData)
-        formData.append("userId", this.$user.userId);
-        formData.append("title", this.title);
-        formData.append("message", this.message);
-        formData.append("image", this.image, this.image.name);
-        formData.append("createdAt", createdAt);
-        this.$http.post('http://localhost:3000/api/posts', formData,{
+          formData.append("userId", this.$user.userId);
+          formData.append("title", this.title);
+          formData.append("message", this.message);
+          formData.append("image", this.image, this.image.name);
+          formData.append("createdAt", createdAt);
+
+        this.$http.post('http://localhost:3000/api/posts', formData, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${this.$token}`
@@ -83,8 +83,8 @@ data() {
           }
         })
         .catch(err => {this.errors.push(err.response.data.error)});
-        }
-      },
+      }
+    },
     postIsValid() {
       this.errors = [];
       if (!this.title) {
