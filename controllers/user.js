@@ -34,7 +34,6 @@ exports.signupOneUser = (req, res) => {
           const newUser = {
             firstname: req.body.firstname,
             lastname: req.body.lastname,
-            avatar: req.body.avatar,
             email: cryptedEmail,
             password: hash,
             admin: 0
@@ -73,7 +72,7 @@ exports.loginOneUser = (req, res, next) => {
             lastname: user.lastname,
             avatar: user.avatar,
             token: jwt.sign(
-              { userId: user._id },
+              { userId: user.id },
               process.env.TK_JWT,
               { expiresIn: '24h' }
             )
