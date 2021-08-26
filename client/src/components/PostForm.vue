@@ -23,6 +23,7 @@
     </form>
   </div>
 </template>
+
 <script>
 import { VueEditor } from "vue2-editor";
 
@@ -38,7 +39,6 @@ data() {
       [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
       [{'background':[]},{'color':[]}],
       ['strike'],
-      // ['clean'],
     ],
     url: null,
     title:"",
@@ -112,18 +112,19 @@ data() {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 3rem;
+  border-radius: 1rem;
   max-width: 29rem;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
   flex-flow: row wrap;
-
 }
+
 .add-post-form-group {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
+
 .vue-editor{
   resize:vertical;
   
@@ -140,7 +141,7 @@ data() {
 
 #preview img {
   max-width: 100%;
-  border-radius: 3rem 3rem 0rem 0rem;
+  border-radius: 1rem 1rem 0rem 0rem;
   max-height: 15rem;
   object-fit: cover;
 }
@@ -149,8 +150,6 @@ input[type="file" i] {
   color: #333;
   font-weight: bold;
 }
-
-
 
 .add-post-form-group label {
   text-align: center;

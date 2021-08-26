@@ -15,13 +15,13 @@ const commentCtrl = require('../controllers/comment');
 //Posts
 //Route to create a post.
 router.post('/', auth, multer, postCtrl.createOnePost);
-// //Route to modify a post.
-// router.put('/:id', auth, multer, postCtrl.modifyOnePost);
-// //Route to delete a post.
-// router.delete('/:id', auth, multer, postCtrl.deleteOnePost);
-// //Route to get one post.
+//Route to modify a post.
+router.put('/:id', auth, multer, postCtrl.modifyOnePost);
+//Route to delete a post.
+router.delete('/:id', auth, multer, postCtrl.deleteOnePost);
+//Route to get one post.
 router.get('/:id', auth, postCtrl.getOnePost);
-// //Route to get all posts.
+//Route to get all posts.
 router.get('/', auth, postCtrl.getAllPosts);
 
 //Comments
@@ -30,7 +30,7 @@ router.post('/:id/comments', auth, commentCtrl.createOneComment);
 //Route to modify a comment.
 // router.put('/:id/comments/:id', auth, commentCtrl.modifyOneComment);
 //Route to delete a comment.
-// router.delete('/:id/comments/:id', auth, commentCtrl.deleteOneComment);
+router.delete('/:id/comments/:id', auth, commentCtrl.deleteOneComment);
 //Route to get all commments.
 router.get('/:id/comments', auth, commentCtrl.getAllComments);
 module.exports = router;
