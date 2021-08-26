@@ -42,15 +42,15 @@ exports.createOneComment = (req, res, next) => {
 // };
 
 //Middleware to delete a comment.
-// exports.deleteOneComment = (req, res, next) => {
-//   Comment.delete({ where: { id: req.params.id } }, 
-//     (err, data) => {
-//     if(err) {
-//       return res.status(400).json({ message: 'Comment has not been deleted' });
-//     } 
-//     res.status(200).json({ message: 'Comment has been deleted'})
-//   })
-// };
+exports.deleteOneComment = (req, res, next) => {
+  Comment.destroy({ where: { id: req.params.id } }, 
+    (err, data) => {
+    if(err) {
+      return res.status(400).json({ message: 'Comment has not been deleted' });
+    } 
+    res.status(200).json({ message: 'Comment has been deleted'})
+  })
+};
 
 //Middleware to get all comments.
 exports.getAllComments = (req, res, next) => {
