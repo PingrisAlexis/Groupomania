@@ -44,7 +44,7 @@ export default {
   font-size: 1.6rem;
   list-style-type: none;
   position: relative;
-  bottom: 2.5rem;
+  bottom: 2.1rem;
   color:#ffffff;
 }
 
@@ -78,5 +78,12 @@ a {
 .fa-cogs {
   font-size: 2rem;
 }
-
+	
+@media screen and (max-width: 480px) {
+  .banner img {
+  height: 6.8rem;
+  width: 100vw;
+  object-fit: cover;
+}
+} 
 </style>
