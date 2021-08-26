@@ -78,14 +78,14 @@ export default {
   justify-content: center;
   font-size: 1rem;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
-  border-radius: 3rem;
+  border-radius: 1rem;
   margin-top: 2rem;
 }
 
 .login-form img {
   width: 100%;
-  border-top-left-radius: 3rem;
-  border-top-right-radius: 3rem;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
 }
 
 
@@ -107,7 +107,7 @@ export default {
   cursor: pointer;
   width: 15rem;
   height: 3.5rem;
-  border-radius: 3rem;
+  border-radius: 1rem;
   font-size: 1.6rem;
   background-color: #192a56;
   color: #ffffff;
@@ -126,6 +126,7 @@ export default {
   font-weight: bold;
   text-decoration: none;
 }
+
 .error-message  {
   color: #fd2d01;
   font-weight: bold;
