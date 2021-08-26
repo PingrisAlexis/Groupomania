@@ -1,5 +1,5 @@
 //Import package File System: To manage download and upload images.
-const fs = require('fs');
+const fs = require("fs");
 //Import the database connection.
 const db = require("../models");
 
@@ -11,7 +11,7 @@ exports.createOnePost = (req, res, next) => {
     userId: req.body.userId,
     title: req.body.title,
     message: req.body.message,
-		media: req.protocol + '://' + req.get('host') + '/images/' + req.file.filename,
+		media: req.protocol + "://" + req.get("host") + "/images/" + req.file.filename,
     createdAt: req.body.createdAt,
   };
   Post.create(newPost)
@@ -25,7 +25,7 @@ exports.createOnePost = (req, res, next) => {
 
 //Middleware to get all posts.
 exports.getAllPosts = (req, res, next) => {
-  Post.findAll({order: [['id', 'DESC']]})
+  Post.findAll({order: [["id", "DESC"]]})
   .then (
     (post) => {res.status(200).json(post)}
   )
@@ -49,22 +49,17 @@ exports.getOnePost = (req, res, next) => {
 exports.modifyOnePost = (req, res, next) => {
   Post.findOne({ where: { id: req.params.id } })
   .then(post => {
-    if (user.avatar !== null)  {
-      let img = post.media.split('/images/')[1];
-      fs.unlink("images/"+ img, () => {
-        Post.update({ media: req.protocol + '://' + req.get('host') + '/images/' + req.file.filename},
+      let filename = post.media.split("/images/")[1];
+      fs.unlink("images/"+ filename, () => {
+        Post.update({ title: req.body.title, message: req.body.message, media: req.protocol + "://" + req.get("host") + "/images/" + req.file.filename},
         { where: { id: req.params.id } })
           .then( 
-            () => {res.status(201).json({ message: 'Media is update.' })}
+            () => {res.status(201).json({ message: "Media is update." })}
           )
           .catch (
             (error) => {res.status(404).json({ error })}
           )
         })
-    } else {
-      Post.update({ media: req.protocol + '://' + req.get('host') + '/images/' + req.file.filename},
-        { where: { id: req.params.id } })
-    }
   })
   .catch ( 
     (error) => res.status(500).json({ error })
@@ -72,12 +67,20 @@ exports.modifyOnePost = (req, res, next) => {
 };
 
 //Middleware to delete a post.
-exports.deletePost = (req, res, next) => {
-  Post.delete({ where: { id: req.params.id } }, 
-    (err, data) => {
-    if(err) {
-      return res.status(400).json({ message: 'Post has not been deleted' });
-    } 
-    res.status(200).json({ message: 'Post has been deleted'})
-  })
+exports.deleteOnePost = (req, res, next) => {
+  Post.findOne({ where: { id: req.params.id } })
+    .then (post => {
+      let filename = post.media.split('/images/')[1];
+      fs.unlink("images/"+ filename, 
+      () => {
+        Post.destroy({ where: { id: req.params.id } })
+          .then(
+            () => res.status(200).json({ message: 'The post has been deleted !' })
+          )
+          .catch(error => res.status(400).json({ error }));
+      });
+    })
+    .catch (
+      (error) => res.status(500).json({ error })
+    );
 };
