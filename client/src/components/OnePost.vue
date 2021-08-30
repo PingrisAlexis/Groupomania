@@ -1,7 +1,7 @@
 <template>
 <div>
   <article class="post-contenair" >
-      <header  v-for = "user in users" :key = "user.id">
+      <header  v-for = "(user, index) in users" :key = "index">
         <div class="post-contenair-header" v-if="user.id === post.userId">
           <img v-if="user.avatar" :src="user.avatar" alt="Profil image" :key="user.avatar">
           <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil image">
@@ -16,44 +16,44 @@
         </div>
       </header>
       <div v-if="post.userId == $user.userId">
-        <button class="btn-edit-post" v-if="!edit" @click="edit = true">Edit</button>
-        <button class="btn-cancel-post" v-if="edit" @click="edit = false">Cancel</button>
+        <button class="btn-edit-post" v-if="!editPost" @click="editPost = true">Back</button>
+        <button class="btn-cancel-post" v-if="editPost" @click="editPost = false">Cancel</button>
         <button class="btn-delete-post"  @click="deletePost()">Delete Post</button>
       </div>
       
-      <main v-if="!edit">
+      <main v-if="!editPost">
         <h1>{{post.title}}</h1>
         <section>
-          <img :src="post.media" alt="Post image">
+          <img :src="this.post.media" />
           <p class="post-message" v-html="(post.message)"></p>
         </section>
       </main>
-      
-      
-      
-      <main  v-if="edit">
+      <main v-if="editPost">
          <label for="edit-title"></label>
-            <input type="text" class="edit-post-title" id="modify-title" v-model="this.post.title">
+            <input @input="handleInputTitle" :value="post.title" type="text" class="edit-post-title" id="modify-title" >
             <section class="edit-section">
-            <div id="preview">
-              <img :src="this.post.media"/>
-            </div>
-            <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="File" accept=".jpg, .jpeg, .gif, .png">
-              <vue-editor v-model="this.post.message"  :value="value" @input="updateText"  cols="30" rows="10" class="edit-post-vue-editor" :editorToolbar="customToolbar"></vue-editor>
+              <div id="preview">
+                <img v-if="this.url" :src="this.url"/>
+                <img v-else :src="this.post.media" />
+              </div>
+              <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="File" accept=".jpg, .jpeg, .gif, .png">
+              <vue-editor @input="handleInputMessage" :value="post.message"  cols="30" rows="10" class="edit-post-vue-editor" :editorToolbar="customToolbar">
+              </vue-editor>
             </section>
-        <button class="btn-modify-post"  @click="modifyPost()">Modify Post</button>      
+            <button class="btn-modify-post"  @click="modifyPost()">Modify Post</button>
+        <div class="validate-message">{{messagePostValidation}}</div>     
       </main>
   
   
       
       <footer>
-        <div v-for = "comment in comments" :key = "comment.id">
-        <div  v-for = "user in users" :key = "user.id">
+        <div v-for = "(comment, index) in comments" :key = "index">
+        <div  v-for = "(user, index) in users" :key = "index">
           <div class="one-comment" v-if=" user.id === comment.userId">
             <div class="one-comment-info">
               <img v-if="user.avatar" :src="user.avatar" alt="Profil image" :key="user.avatar" class="one-comment-info-image">
               <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil image" class="one-comment-info-image">
-              <div>
+              <div class="one-comment-user">
                 <span class="user-lastname">{{user.lastname}} </span>
                 <span class="user-firstname">{{user.firstname}} </span>
               </div>
@@ -61,8 +61,16 @@
                 <span>The {{comment.createdAt}}</span>
               </div>
             </div>
-            <p class="comment-content">{{comment.comment}}</p>
-            <button class="delete-post" v-if="comment.userId == $user.userId" @click="deleteComment(comment.id)">Delete Comment</button>
+            <p class="comment-content" v-if="!editComment">{{comment.comment}}</p>
+            <textarea v-if="editComment" :value="comment.comment" type="text"></textarea>
+            <div v-if="comment.userId == $user.userId">
+              <button class="btn-cancel-post" v-if="!editComment" @click="editComment = true">Modify</button>
+              <button class="btn-cancel-post" v-if="editComment" @click="editComment = false">Back</button>
+              
+              <button class="btn-delete-post" v-if="!editComment" @click="deleteOneComment(comment.id)">Delete</button>
+            <button class="btn-modify-post" v-if="editComment"  @click="modifyPost()">Modify</button>
+              
+            </div>
             <hr>
           </div>
         </div>
@@ -75,7 +83,7 @@
           <label for="add-comment">
             <textarea v-model="comment" class="add-comment"  cols="50" rows="5" placeholder=" Write a comment:"></textarea>
           </label>
-          <button class="btn-add-comment"><i class="far fa-envelope"></i></button>   
+          <button class="btn-add-comment">Submit</button>   
         </form>
       </footer>
     </article>
@@ -103,11 +111,16 @@ export default {
       comment: "",
       errors: [],
       comments: [],
-      edit: false,
-      image: null,
-      title:"",
-      message:"",
-      modifiedMessage:""
+      editPost: false,
+      editComment: false,
+      image: "",
+      title: "",
+      message: "",
+      media: "",
+      inputDataTitle: "",
+      inputDataMessage:"",
+      url: null,
+      messagePostValidation: ""
     }
   },
   mounted() {
@@ -116,34 +129,50 @@ export default {
     this.getAllComments();
   },
   methods: {
-    modifyPost() {
-      // const postId = this.$route.params.id;
-      const modifiedTitle = document.querySelector('#modify-title').value;
-      const modifiedMessage = document.querySelector(".edit-post-vue-editor").value;
-      
-      // const NewMessage = this.post.message;
-      console.log(modifiedTitle);
-      console.log(modifiedMessage);
-      
-        // const formData = new FormData();
-        // formData.append("image", this.image, this.image.name);
-        // formData.append("title", modifiedTitle);
-        // formData.append("message", modifiedMessage);
-        // this.$http.put(`http://localhost:3000/api/posts/${postId}`, formData,{
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     'Authorization': `Bearer ${this.$token}`
-        //   }
-        // })
-        // .then(
-        //   document.location.reload()
-        // )
-        // .catch(err => {this.errors.push(err.response.data.error)});
+     updateMessage: async function () {
+    this.message = 'updated'
+    console.log(this.$el.textContent) // => 'not updated'
+    await this.$nextTick()
+    console.log(this.$el.textContent) // => 'updated'
+  },
+    handleInputTitle(event) {
+      this.inputDataTitle = event.target.value;
     },
-     upload() {
+    handleInputMessage($event) {
+      this.inputDataMessage = $event;
+    },
+    upload() {
       this.image = this.$refs.image.files[0];
       this.url = URL.createObjectURL(this.image);
     },
+    modifyPost() {
+      const postId = this.$route.params.id;
+      const currentImgUrl = document.querySelector("#preview").querySelector("img").src;
+      const formData = new FormData();
+
+      if (currentImgUrl != this.post.media) {
+        formData.append("image", this.image, this.image.name);
+      }
+      if (this.post.title != this.inputDataTitle) {
+        formData.append("title", this.inputDataTitle);
+      }
+      if (this.post.message != this.inputDataMessage) {
+        formData.append("message", this.inputDataMessage);
+      }
+        
+      this.$http.put(`http://localhost:3000/api/posts/${postId}`, formData,{
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.$token}`
+        }
+      })
+      .then( () => {
+        this.post.media = this.url;
+        this.messagePostValidation = "Your post has been modified!";
+        this.getOnePost();
+      })
+      .catch(err => {this.errors.push(err.response.data.error)});
+    }, 
     getOnePost() {
       const postId = this.$route.params.id;
       this.$http.get(`http://localhost:3000/api/posts/${postId}`,
@@ -158,79 +187,6 @@ export default {
         this.post = res.data;
       })
       .catch(err => {this.errors.push(err.response.data.error)});
-    },
-  getAllUsers(){
-    this.$http.get('http://localhost:3000/api/auth/',
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.$token}`
-        }
-      }
-    )
-    .then(res => {
-      this.users = res.data;
-    })
-    .catch(err => {this.errors.push(err.response.data.error)});
-  },
-  getAllComments() {
-    var routePostId = parseInt(this.$route.params.id);
-    this.$http.get(`http://localhost:3000/api/posts/${routePostId}/comments/`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.$token}`
-        }
-      }
-    )
-    .then(res => {
-      this.comments = res.data;
-    })
-    .catch(err => {this.errors.push(err.response.data.error)});
-  }, 
-  trySubmitComment(e) {
-  e.preventDefault();
-    
-  if (this.commentIsValid() ) {
-    var routePostId = parseInt(this.$route.params.id);
-    var commentUserId = this.$user.userId;
-    var commentValue = this.comment;
-    var date = new Date();
-    const commentDate = date.toLocaleString('en-GB', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric'});
-
-    const formData = { 
-      userId: commentUserId,
-      postId: routePostId,
-      comment: commentValue,
-      createdAt: commentDate
-    };
-    this.$http.post(`http://localhost:3000/api/posts/${routePostId}/comments/`, formData, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.$token}`
-    }
-    })
-    .then (res => {
-      if(res.status === 200) {
-        this.comment="";
-        this.getAllComments();
-        this.getAllUsers();
-      }
-    })
-    .catch( err => {this.errors.push( err.response.data.error)});
-    }
-  },
-  commentIsValid() {
-      this.errors = [];
-      if (!this.comment) {
-        this.errors.push('Write a comment before submit.');
-      }
-      return this.errors.length ? false : true;
     },
     deletePost(){
       const postId = this.$route.params.id;
@@ -248,7 +204,82 @@ export default {
         }
       })
     },
-    deleteComment(commentId){
+
+    getAllUsers(){
+      this.$http.get('http://localhost:3000/api/auth/',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.$token}`
+        }
+      }
+    )
+    .then(res => {
+      this.users = res.data;
+    })
+    .catch(err => {this.errors.push(err.response.data.error)});
+    },
+    getAllComments() {
+      var routePostId = parseInt(this.$route.params.id);
+      this.$http.get(`http://localhost:3000/api/posts/${routePostId}/comments/`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.$token}`
+          }
+        }
+      )
+      .then(res => {
+        this.comments = res.data;
+      })
+      .catch(err => {this.errors.push(err.response.data.error)});
+    }, 
+    trySubmitComment(e) {
+    e.preventDefault();
+    
+    if (this.commentIsValid() ) {
+      var routePostId = parseInt(this.$route.params.id);
+      var commentUserId = this.$user.userId;
+      var commentValue = this.comment;
+      var date = new Date();
+      const commentDate = date.toLocaleString('en-GB', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'});
+
+      const formData = { 
+        userId: commentUserId,
+        postId: routePostId,
+        comment: commentValue,
+        createdAt: commentDate
+      };
+      this.$http.post(`http://localhost:3000/api/posts/${routePostId}/comments/`, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.$token}`
+      }
+      })
+      .then (res => {
+      if(res.status === 200) {
+        this.comment="";
+        this.getAllComments();
+        this.getAllUsers();
+      }
+      })
+    .catch( err => {this.errors.push( err.response.data.error)});
+    }
+    },
+    commentIsValid() {
+      this.errors = [];
+      if (!this.comment) {
+        this.errors.push('Write a comment before submit.');
+      }
+      return this.errors.length ? false : true;
+    },
+
+    deleteOneComment(commentId){
       const postId = this.$route.params.id;
       this.$http.delete(`http://localhost:3000/api/posts/${postId}/comments/${commentId}`,
         {
@@ -262,7 +293,22 @@ export default {
         document.location.reload()
       )
     },
+    TrySubmitmodifiedComment(commentId) {
+      const postId = this.$route.params.id;
 
+      const formData = new FormData();
+        
+      this.$http.put(`http://localhost:3000/api/posts/${postId}/comments/${commentId}`, formData,{
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.$token}`
+        }
+      })
+      .then( () => {
+        this.messageCommentValidation = "Your comment has been modified!";
+      })
+      .catch(err => {this.errors.push(err.response.data.error)});
+    }, 
   },
 }
 </script>
@@ -291,7 +337,6 @@ export default {
   object-fit: cover;
 }
 
-
 .post-header-info {
   margin-top: 1.5rem;
   padding-left: 1rem;
@@ -315,7 +360,9 @@ main {
   justify-content: center;
   align-items: center;
 }
-
+textarea {
+  margin: 1rem;
+}
 h1 {
   font-size: 2rem;
   text-align: center;
@@ -350,20 +397,24 @@ section {
   border-radius: 1rem;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
 }
+
 .edit-section {
   margin-top: 5.1rem;
 }
+
 section img {
   height: 15rem;
   width: 38rem;
   object-fit: cover;
   border-radius: 1rem 1rem 0rem 0rem;
 }
+
 .edit-post-title {
   font-size: 2rem;
   text-align: center;
   margin-top: 0.5rem;
 }
+
 section span,
 .edit-post-vue-editor {
   max-width: 30rem;
@@ -377,6 +428,13 @@ textarea {
   font-size: 1rem;
   text-decoration: none;
   outline: none;
+}
+
+.validate-message {
+  color: green;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1rem;
 }
 
 .error-message {
@@ -396,6 +454,10 @@ ul {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.one-comment-user {
+  margin-top: 1rem;
 }
 
 .comment-content {
@@ -437,27 +499,6 @@ ul {
   align-items: center;
 }
 
-.btn-add-comment {
-   margin-top: 2rem;
-  cursor: pointer;
-  width: 15rem;
-  height: 3.5rem;
-  border-radius: 0.5rem;
-  font-size: 1.2rem;
-  margin: 1rem;
-  font-weight: bold;
-  background: #ffffff;
-}
-
-.fa-envelope {
-  font-size: 2rem;
-  color: green;
-}
-
-.btn-add-comment:hover {
-  transform: scale(1.03);
-  transition: 0.6s;
-}
 
 hr {
   width: 5rem;
@@ -466,7 +507,8 @@ hr {
 footer {
   overflow-x: hidden;
 }
-
+.btn-add-comment,
+.btn-modify-post,
 .btn-delete-post,
 .btn-edit-post,
 .btn-cancel-post {
@@ -481,9 +523,32 @@ footer {
 .btn-cancel-post {
   background-color: #ffffff;
   color: orange;
-  
 }
 
+.btn-edit-post:hover,
+.btn-cancel-post:hover {
+  transition: 0.6s;
+  color: #ffffff;
+  background-color: orange;
+}
+
+.btn-add-comment,
+.btn-modify-post {
+  background-color: #ffffff;
+  color: green;
+  margin-bottom: 2rem;
+}
+
+.btn-add-comment:hover,
+.btn-modify-post:hover {
+  transition: 0.6s;
+  color: #ffffff;
+  background-color: green;
+}
+
+.btn-add-comment {
+ margin-top: 1rem; 
+}
 .btn-delete-post {
   background-color: #ffffff;
   color: #fd2d01;

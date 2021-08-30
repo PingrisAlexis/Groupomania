@@ -2,8 +2,8 @@
   <div class="user-account-contenair" >
     <div class="user-account-img-contenair">
     <div id="preview">
-      <img v-if="user.avatar" :src="this.user.avatar">
-      <img v-else-if="url" :src="url" />
+      <img v-if="this.url" :src="this.url">
+      <img v-else-if="this.user.avatar" :src="this.user.avatar" />
       <img v-else src="../assets/random-user.png">
     </div>
       <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="File" accept=".jpg, .jpeg, .gif, .png">

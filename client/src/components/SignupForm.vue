@@ -39,10 +39,11 @@ export default {
   data() {
     return {
       form: {
-        firstname: '',
-        lastname: '',
-        email: '',
-        password: ''
+        firstname: "",
+        lastname: "",
+        email: "",
+        password: "",
+        passwordVerification:""
       },
       message:"",
       errors: []

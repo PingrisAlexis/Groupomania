@@ -1,6 +1,6 @@
 //Import the database connection.
 const db = require("../models");
-const Post = db.post;
+
 const Comment = db.comment;
 
 //Middleware to create a comment.
@@ -21,25 +21,20 @@ exports.createOneComment = (req, res, next) => {
 };
 
 //Middleware to modify a comment.
-// exports.modifyOneComment = (req, res, next) => {
-//   Comment.findOne({ where: { id: req.params.id } })
-//   .then(comment => {
-//     let userId = req.headers.authorization.split(' ')[3];
-//     if (comment.userId == userId) {
-//     Comment.update({ message: req.body.message}, { where: { id: req.params.id } })
-//     .then ( 
-//       () => {res.status(201).json({ message: 'Comment has been modified.' })}
-//     )
-//     .catch (
-//       (error) => {res.status(404).json({ error: error });}
-//     )} 
-//     else {
-// 			res.status(403).json({error })
-//     }
-//   })
-//   .catch (
-//     (error) => res.status(500).json({ error }));
-// };
+exports.modifyOneComment = (req, res, next) => {
+  Comment.findOne({ where: { id: req.params.id } })
+  .then( () => {
+    Comment.update({ message: req.body.message}, { where: { id: req.params.id } })
+    .then ( 
+      () => {res.status(201).json({ message: 'Comment has been modified.' })}
+    )
+    .catch (
+      (error) => {res.status(404).json({ error: error });}
+    )
+  })
+  .catch (
+    (error) => res.status(500).json({ error }));
+};
 
 //Middleware to delete a comment.
 exports.deleteOneComment = (req, res, next) => {
