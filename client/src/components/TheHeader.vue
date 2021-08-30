@@ -3,11 +3,11 @@
       <div class="banner">
         <img src="../assets/groupomania-banner-logo.png" alt="Logo Groupomania">
         <nav>
-          <router-link  tag="a" to="/Home" active-class="active"><i class="fas fa-home"></i></router-link>
+          <router-link  tag="a" to="/Home" custom v-slot="{ navigate }"><i class="fas fa-home" @click="navigate"></i></router-link>
           |
-          <router-link  tag="a" to="/AddPost" active-class="active" v-on:click="show = !show"><i class="far fa-envelope-open"></i></router-link>
+          <router-link  tag="a" to="/AddPost" custom v-slot="{ navigate }"><i class="far fa-envelope-open" @click="navigate"></i></router-link>
           |
-          <router-link  tag="a" to="/MyAccount" active-class="active" v-on:click="show = !show"><i class="fas fa-cogs"></i></router-link>
+          <router-link  tag="a" to="/MyAccount" custom v-slot="{ navigate }"><i class="fas fa-cogs" @click="navigate"></i></router-link>
           |
           <i class="fas fa-power-off" @click="onDisconnect()"></i>
         </nav>
@@ -27,7 +27,6 @@ export default {
 </script>
 
 <style scoped>
-
 .the-header-contenair {
   width: 100%;
   display: flex;
@@ -61,7 +60,6 @@ a {
   font-weight: bold;
 }
 
-
 .fa-power-off {
   font-size: 2rem !important;
   cursor: pointer;
@@ -73,6 +71,7 @@ a {
   transition: 0.6s;
   color: red;
 }
+
 .fa-home,
 .fa-envelope-open,
 .fa-cogs {
@@ -81,9 +80,9 @@ a {
 	
 @media screen and (max-width: 480px) {
   .banner img {
-  height: 6.8rem;
-  width: 100vw;
-  object-fit: cover;
-}
+    height: 6.8rem;
+    width: 100vw;
+    object-fit: cover;
+  } 
 } 
 </style>
