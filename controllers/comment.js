@@ -24,7 +24,7 @@ exports.createOneComment = (req, res, next) => {
 exports.modifyOneComment = (req, res, next) => {
   Comment.findOne({ where: { id: req.params.id } })
   .then( () => {
-    Comment.update({ message: req.body.message}, { where: { id: req.params.id } })
+    Comment.update({ comment: req.body.comment}, { where: { id: req.params.id } })
     .then ( 
       () => {res.status(201).json({ message: 'Comment has been modified.' })}
     )

@@ -21,18 +21,27 @@
       </ul>
     <div>
     <button class="user-account-modify-user" @click="trySubmit()">Save new profil pick</button>
-    <button class="user-account-delete-user" @click="deleteUser()">Delete account</button>
+    <button class="user-account-delete-user" @click="deleteUser(user.id)">Delete account</button>
     </div>
-    <h2> Your post(s):</h2>
-     <div v-for= "post in posts" :key="post.id">
-        <div  v-if="post.userId === user.id">
+      <div v-for= "post in posts" :key="post.id">
+        <div  v-if="post.userId === user.id || $user.admin === 1">
           <router-link class="user-post" :to="{ name: 'Post', params: { id: post.id } }">
             <p>The {{post.createdAt}}</p>
             <p class="user-post-title">{{post.title}}</p>
             </router-link>
             <hr>
         </div>
-    </div>
+      </div>
+      <div v-for= "user in users" :key="user.id">
+      <div v-if="$user.admin == 1 || user.admin == 0">
+            <p>{{user.lastname}}</p>
+            <p>{{user.firstname}}</p>
+            <p>{{user.createdAt}}</p>
+    <button class="user-account-delete-user" @click="deleteUserByAdmin(user.id)">Delete account</button>
+            
+            <hr>
+        </div>
+      </div>
   </div>
 </template>
 
@@ -45,13 +54,14 @@ export default {
     image: null,
     errors: [],
     user: [],
+    users: [],
     posts:[]
   }
   },
   mounted (){
     this.getOneUser();
     this.getAllPosts();
-    
+    this.getAllUsers();
   },
   methods: {
     trySubmit() {
@@ -78,8 +88,8 @@ export default {
       }
       return this.errors.length ? false : true;
     }, 
-    deleteUser(){
-      this.$http.delete(`http://localhost:3000/api/auth/${this.$user.userId}`,
+    deleteUser(userId){
+      this.$http.delete(`http://localhost:3000/api/auth/${userId}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -91,7 +101,19 @@ export default {
         localStorage.removeItem('user')
       )
       .then(
+
         window.location="/Login"
+        
+      )
+    },
+    deleteUserByAdmin(userId){
+      this.$http.delete(`http://localhost:3000/api/auth/${userId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.$token}`
+          }
+        }
       )
     },
     upload() {
@@ -109,6 +131,22 @@ export default {
       )
       .then(res => {
         this.user = res.data;
+      })
+      .catch(err => {
+        this.errors.push(err.response.data.error)
+      });
+    },
+    getAllUsers() {
+       this.$http.get(`http://localhost:3000/api/auth`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.$token}`
+          }
+        }
+      )
+      .then(res => {
+        this.users = res.data;
       })
       .catch(err => {
         this.errors.push(err.response.data.error)

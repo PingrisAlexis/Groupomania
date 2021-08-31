@@ -10,6 +10,7 @@ const path = require('path');
 require('dotenv').config();
 //Create Express application.
 const app = express();
+
 //Cross Origin Resource Sharing Management
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,8 +21,6 @@ app.use((req, res, next) => {
 
 //Transform the data from POST method to JSon
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }))
-// app.use(express.urlencoded({ extended: true }))
 
 //HTTP headers protection
 app.use(helmet());
