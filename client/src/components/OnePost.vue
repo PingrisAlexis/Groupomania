@@ -1,7 +1,7 @@
 <template>
 <div>
   <article class="post-contenair" >
-      <header  v-for = "(user, index) in users" :key = "index">
+      <header  v-for = "user in users" :key = "user.id">
         <div class="post-contenair-header" v-if="user.id === post.userId">
           <img v-if="user.avatar" :src="user.avatar" alt="Profil image" :key="user.avatar">
           <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil image">
@@ -15,9 +15,9 @@
           <div></div>
         </div>
       </header>
-      <div v-if="post.userId == $user.userId">
-        <button class="btn-edit-post" v-if="!editPost" @click="editPost = true">Back</button>
-        <button class="btn-cancel-post" v-if="editPost" @click="editPost = false">Cancel</button>
+      <div v-if="post.userId == $user.userId || $user.admin == 1">
+        <button class="btn-edit-post" v-if="!editPost" @click="editPost = true">Modify</button>
+        <button class="btn-cancel-post" v-if="editPost" @click="editPost = false">Back</button>
         <button class="btn-delete-post"  @click="deletePost()">Delete Post</button>
       </div>
       
@@ -41,14 +41,12 @@
               </vue-editor>
             </section>
             <button class="btn-modify-post"  @click="modifyPost()">Modify Post</button>
-        <div class="validate-message">{{messagePostValidation}}</div>     
+        <div class="validate-message">{{messagePostValidation}}</div>
       </main>
   
-  
-      
       <footer>
-        <div v-for = "(comment, index) in comments" :key = "index">
-        <div  v-for = "(user, index) in users" :key = "index">
+        <div v-for = "comment in comments" :key = "comment.id">
+        <div  v-for = "user in users" :key = "user.id">
           <div class="one-comment" v-if=" user.id === comment.userId">
             <div class="one-comment-info">
               <img v-if="user.avatar" :src="user.avatar" alt="Profil image" :key="user.avatar" class="one-comment-info-image">
@@ -60,16 +58,16 @@
               <div>
                 <span>The {{comment.createdAt}}</span>
               </div>
+               <p class="comment-content" v-if="editComment == 0">{{comment.comment}}</p>
+              <textarea @input="handleInputComment" v-if="editComment == comment.id" :value="comment.comment" type="text"></textarea>
             </div>
-            <p class="comment-content" v-if="!editComment">{{comment.comment}}</p>
-            <textarea v-if="editComment" :value="comment.comment" type="text"></textarea>
-            <div v-if="comment.userId == $user.userId">
-              <button class="btn-cancel-post" v-if="!editComment" @click="editComment = true">Modify</button>
-              <button class="btn-cancel-post" v-if="editComment" @click="editComment = false">Back</button>
-              
-              <button class="btn-delete-post" v-if="!editComment" @click="deleteOneComment(comment.id)">Delete</button>
-            <button class="btn-modify-post" v-if="editComment"  @click="modifyPost()">Modify</button>
-              
+        <div class="validate-message" v-if="editComment == comment.id">{{messageCommentValidation}}</div>
+            
+            <div v-if="comment.userId == $user.userId  || $user.admin == 1">
+              <button class="btn-cancel-post" v-if="editComment == 0" @click="editComment = comment.id">Modify</button>
+              <button class="btn-cancel-post" v-if="editComment == comment.id" @click="editComment = 0">Back</button>
+              <button class="btn-delete-post" v-if="editComment == 0" @click="deleteOneComment(comment.id)">Delete</button>
+              <button class="btn-modify-post" v-if="editComment == comment.id"  @click="modifyOneComment(comment.id)" >Modify</button>
             </div>
             <hr>
           </div>
@@ -112,7 +110,7 @@ export default {
       errors: [],
       comments: [],
       editPost: false,
-      editComment: false,
+      editComment: 0,
       image: "",
       title: "",
       message: "",
@@ -120,7 +118,8 @@ export default {
       inputDataTitle: "",
       inputDataMessage:"",
       url: null,
-      messagePostValidation: ""
+      messagePostValidation: "",
+      messageCommentValidation: ""
     }
   },
   mounted() {
@@ -129,17 +128,14 @@ export default {
     this.getAllComments();
   },
   methods: {
-     updateMessage: async function () {
-    this.message = 'updated'
-    console.log(this.$el.textContent) // => 'not updated'
-    await this.$nextTick()
-    console.log(this.$el.textContent) // => 'updated'
-  },
     handleInputTitle(event) {
       this.inputDataTitle = event.target.value;
     },
     handleInputMessage($event) {
       this.inputDataMessage = $event;
+    },
+    handleInputComment(event) {
+      this.inputDataComment = event.target.value;
     },
     upload() {
       this.image = this.$refs.image.files[0];
@@ -204,20 +200,19 @@ export default {
         }
       })
     },
-
     getAllUsers(){
       this.$http.get('http://localhost:3000/api/auth/',
-      {
+        {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.$token}`
+          }
         }
-      }
-    )
-    .then(res => {
-      this.users = res.data;
-    })
-    .catch(err => {this.errors.push(err.response.data.error)});
+      )
+      .then(res => {
+        this.users = res.data;
+      })
+      .catch(err => {this.errors.push(err.response.data.error)});
     },
     getAllComments() {
       var routePostId = parseInt(this.$route.params.id);
@@ -274,7 +269,7 @@ export default {
     commentIsValid() {
       this.errors = [];
       if (!this.comment) {
-        this.errors.push('Write a comment before submit.');
+        this.errors.push("Write a comment before submit.");
       }
       return this.errors.length ? false : true;
     },
@@ -293,11 +288,11 @@ export default {
         document.location.reload()
       )
     },
-    TrySubmitmodifiedComment(commentId) {
+    modifyOneComment(commentId) {
       const postId = this.$route.params.id;
-
-      const formData = new FormData();
-        
+      const formData = { 
+        comment: this.inputDataComment,
+      };
       this.$http.put(`http://localhost:3000/api/posts/${postId}/comments/${commentId}`, formData,{
         headers: {
           'Content-Type': 'application/json',
@@ -306,6 +301,7 @@ export default {
       })
       .then( () => {
         this.messageCommentValidation = "Your comment has been modified!";
+        this.getAllComments();
       })
       .catch(err => {this.errors.push(err.response.data.error)});
     }, 
@@ -360,9 +356,11 @@ main {
   justify-content: center;
   align-items: center;
 }
+
 textarea {
   margin: 1rem;
 }
+
 h1 {
   font-size: 2rem;
   text-align: center;
@@ -423,6 +421,7 @@ section span,
 
 textarea {
   padding-left: 1rem;
+  margin-bottom: 1.8rem;
   font-family: Arial, Helvetica, sans-serif;
   border-radius: 1rem;
   font-size: 1rem;
@@ -464,14 +463,13 @@ ul {
   font-size: 1rem;
   background: #f1f2f6;
   padding: 0.8rem;
-  margin: 0.8rem;
+  margin-bottom: 1.8rem;
   border-radius: 1rem;
   max-width: 15rem;
   text-align: center;
   white-space: wrap;
   word-wrap: break-word;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
-  
 }
 
 .one-comment-info {
@@ -498,7 +496,6 @@ ul {
   justify-content: center;
   align-items: center;
 }
-
 
 hr {
   width: 5rem;
@@ -536,7 +533,6 @@ footer {
 .btn-modify-post {
   background-color: #ffffff;
   color: green;
-  margin-bottom: 2rem;
 }
 
 .btn-add-comment:hover,
@@ -549,6 +545,7 @@ footer {
 .btn-add-comment {
  margin-top: 1rem; 
 }
+
 .btn-delete-post {
   background-color: #ffffff;
   color: #fd2d01;
@@ -559,6 +556,7 @@ footer {
   color: #ffffff;
   background-color: #fd2d01;
 }
+
 @media screen and (max-width: 680px) {
  h1,
  section img,
