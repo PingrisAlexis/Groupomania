@@ -62,14 +62,16 @@ a {
 
 .fa-power-off {
   font-size: 2rem !important;
-  cursor: pointer;
   color: #ffffff;
 }
-
+.fa-home:hover,
+.fa-envelope-open:hover,
+.fa-cogs:hover,
 .fa-power-off:hover {
   transform: scale(1.2);
   transition: 0.6s;
-  color: red;
+  cursor: pointer;
+  
 }
 
 .fa-home,
@@ -77,6 +79,12 @@ a {
 .fa-cogs {
   font-size: 2rem;
 }
+
+.fa-power-off:hover {
+  color: red;
+  
+}
+	
 	
 @media screen and (max-width: 480px) {
   .banner img {
