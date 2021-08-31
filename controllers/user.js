@@ -71,6 +71,7 @@ exports.loginOneUser = (req, res, next) => {
             firstname: user.firstname,
             lastname: user.lastname,
             avatar: user.avatar,
+            admin: user.admin,
             token: jwt.sign(
               { userId: user.id },
               process.env.TK_JWT,
