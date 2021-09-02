@@ -1,6 +1,6 @@
 <template class="template">
   <div class="login-contenair">
-   <form @submit="trySubmit" class="login-form" >
+   <form @submit.prevent="trySubmitLogin" class="login-form" >
      <div class="login-form-img-contenair">
         <img src="../assets/groupomania-local.png" alt="Logo Groupomania">
      </div>
@@ -9,19 +9,16 @@
        |
         <router-link to="/SignupForm" class="router-link-inactive">Sign up</router-link>
       </nav>
-        <label for="login-email">E-mail:</label>
-        <input v-model="form.email"  type="email" id="login-email"/>
-
-        <label for="login-password">Password:</label>
-        <input v-model="form.password" type="password" id="login-password"/>
-        
-         <ul v-if="errors.length">
-            <b>Please correct the following error(s):</b>
-          <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
-        </ul>
-        <button id="login-btn type" type="submit"><i class="fas fa-check"></i></button>
+      <label for="login-email">E-mail:</label>
+      <input v-model="form.email"  type="email" id="login-email"/>
+      <label for="login-password">Password:</label>
+      <input v-model="form.password" type="password" id="login-password"/>
+      <ul v-if="errors.length">
+        <b>Please correct the following error(s):</b>
+        <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
+      </ul>
+      <button id="login-btn type" type="submit">Submit</button>
     </form>
-    
   </div>
 </template>
 
@@ -37,18 +34,16 @@ export default {
     }
   },
   methods: {
-   trySubmit(e) {
-      e.preventDefault();
-    if (this.loginIsValid()) {
+   trySubmitLogin() {
+      if (this.loginIsValid()) {
        this.$http.post('http://localhost:3000/api/auth/login', this.form )
     .then(res => {
-        if(res.status === 200) {
-          localStorage.setItem('user', JSON.stringify(res.data));
-          this.$router.push('/Home');
-          location.reload();
+      if(res.status === 200) {
+        localStorage.setItem('user', JSON.stringify(res.data));
+        this.$router.push('/Home')
       }
     })
-    .catch( err => {this.errors.push( err.response.data.error)});
+    .catch(err => console.log( err.response.data));
     }
   },
     loginIsValid() {
@@ -66,11 +61,11 @@ export default {
 </script>
 
 <style scoped>
-
 .login-contenair {
   width: 30rem;
  margin: auto;
 }
+
 .login-form {
   display:flex;
   flex-direction: column;

@@ -29,7 +29,7 @@
           <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
         </ul>
          <div class="validate-message">{{message}}</div>
-        <button id="signup-btn" type="submit"><i class="fas fa-check"></i></button>
+        <button id="signup-btn" type="submit">Submit</button>
     </form>
   </div>
 </template>
