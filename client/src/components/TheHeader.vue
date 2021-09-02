@@ -19,7 +19,7 @@
 export default {
   methods: {
     onDisconnect() {
-      localStorage.removeItem('user');
+      localStorage.clear();
       window.location="/Login";
     },
   }
