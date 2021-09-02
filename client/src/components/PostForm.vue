@@ -2,15 +2,16 @@
   <div class="add-post-contenair">
     <form  @submit="trySubmit">
       <div id="preview">
-          <img v-if="url" :src="url" />
-          <img v-else src="../assets/groupomania-local.png">
+          <img v-if="url" :src="url" alt="Post Image">
+          <img v-else src="../assets/groupomania-local.png" alt="Default Post Image">
       </div>
-      <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="File" accept=".jpg, .jpeg, .gif, .png">
+      <label class="post-form-file" for="post-file">Click to choose your article image:</label>
+      <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .gif, .png">
       <div class="add-post-form-group">
-        <label>Title:</label>
-        <input v-model="title" type="text" name="title" class="title" />
-        <label>Message:</label>
-        <vue-editor cols="30" rows="10" class="add-post-vue-editor" v-model="message" :editorToolbar="customToolbar"></vue-editor>
+        <label for="title">Title:</label>
+        <input v-model="title" id="title" type="text" maxlength="30" name="title" class="title" required/>
+        <label for="message">Message:</label>
+        <vue-editor cols="30" id="message" rows="10" class="add-post-vue-editor" v-model="message" :editorToolbar="customToolbar" required></vue-editor>
       </div>
       <ul v-if="errors.length">
         <b>Please correct the following error(s):</b>
@@ -18,7 +19,7 @@
       </ul>
       <div class="validate-message">{{messagePostValidation}}</div>
       <div class="add-post-form-btn-container">
-        <button class="btn-submit"><i class="far fa-envelope"></i></button>
+        <button class="btn-submit">Submit</button>
       </div>
     </form>
   </div>
@@ -40,6 +41,8 @@ data() {
       [{'background':[]},{'color':[]}],
       ['strike'],
     ],
+    storageToken: "",
+    storageUser:"",
     url: null,
     title:"",
     message:"",
@@ -49,7 +52,14 @@ data() {
     errors: []
     }
   },
+   mounted() {
+    this.connect();
+  },
   methods: {
+    connect(){
+      this.storageToken = JSON.parse(localStorage.user).token;
+      this.storageUser = JSON.parse(localStorage.user);
+    },
     trySubmit(e) {
       e.preventDefault();
       if (this.postIsValid() ) {
@@ -62,7 +72,7 @@ data() {
           minute: 'numeric'});
 
         const formData = new FormData();
-          formData.append("userId", this.$user.userId);
+          formData.append("userId", this.storageUser.userId);
           formData.append("title", this.title);
           formData.append("message", this.message);
           formData.append("image", this.image, this.image.name);
@@ -71,7 +81,7 @@ data() {
         this.$http.post('http://localhost:3000/api/posts', formData, {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         })
         .then(res => {
@@ -82,7 +92,7 @@ data() {
             this.image = null;
           }
         })
-        .catch(err => {this.errors.push(err.response.data.error)});
+        .catch(err => console.log( err.response.data));
       }
     },
     postIsValid() {
@@ -139,16 +149,15 @@ data() {
   outline:none; 
 }
 
+.post-form-file {
+  font-size: 1.4rem;
+  display: block;
+}
 #preview img {
   max-width: 100%;
   border-radius: 1rem 1rem 0rem 0rem;
   max-height: 15rem;
   object-fit: cover;
-}
-
-input[type="file" i] {
-  color: #333;
-  font-weight: bold;
 }
 
 .add-post-form-group label {
@@ -169,23 +178,18 @@ input[type="file" i] {
   justify-content: center;
 }
 
-button {
+.btn-submit {
   cursor: pointer;
-  width:15rem;
-  height: 3.5rem;
+  width: 10rem;
   border-radius: 0.5rem;
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   margin-bottom: 1rem;
   background-color: #ffffff;
-  color: #333;
   margin: 1rem;
+  color: green;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
 }
 
-.btn-submit:hover {
-  transform: scale(1.03);
-  transition: 0.6s;
-  color: #333;
-}
 
 .error-message {
   color: #fd2d01;

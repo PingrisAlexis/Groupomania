@@ -1,30 +1,31 @@
 <template>
   <div class="user-account-contenair" >
     <div class="user-account-img-contenair">
-    <div id="preview">
-      <img v-if="this.url" :src="this.url">
-      <img v-else-if="this.user.avatar" :src="this.user.avatar" />
-      <img v-else src="../assets/random-user.png">
+      <div id="preview">
+        <img v-if="this.url" :src="this.url" alt="Preview user's profil pick">
+        <img v-else-if="this.user.avatar" :src="this.user.avatar" alt="User's profil pick"/>
+        <img v-else src="../assets/random-user.png" alt="User's account random pick">
+      </div>
+      <label for="preview-file">Click here to choose your profil image:</label>
+      <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="preview-file" accept=".jpg, .jpeg, .gif, .png">
     </div>
-      <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="File" accept=".jpg, .jpeg, .gif, .png">
+    <div>
+      <button class="user-account-modify-user" @click="trySubmit()">Save new profil pick</button>
+      <button class="user-account-delete-user" @click="deleteUser(user.id)">Delete account</button>
     </div>
     <div class="user-data">
       <div class="user-data-name">
-        <span id="user-lastname" >{{this.$user.lastname}} </span>
-        <span id="user-firstname"> {{this.$user.firstname}}</span>
+        <span class="user-lastname" >{{this.storageUser.lastname}} </span>
+        <span class="user-firstname"> {{this.storageUser.firstname}}</span>
       </div>
-      <span>Account N° {{this.$user.userId}}</span>
+      <span>Account N° {{this.storageUser.userId}}</span>
     </div>
     <ul v-if="errors.length">
         <b>Please correct the following error(s):</b>
         <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
       </ul>
-    <div>
-    <button class="user-account-modify-user" @click="trySubmit()">Save new profil pick</button>
-    <button class="user-account-delete-user" @click="deleteUser(user.id)">Delete account</button>
-    </div>
       <div v-for= "post in posts" :key="post.id">
-        <div  v-if="post.userId === user.id || $user.admin === 1">
+        <div  v-if="post.userId == user.id">
           <router-link class="user-post" :to="{ name: 'Post', params: { id: post.id } }">
             <p>The {{post.createdAt}}</p>
             <p class="user-post-title">{{post.title}}</p>
@@ -33,13 +34,12 @@
         </div>
       </div>
       <div v-for= "user in users" :key="user.id">
-      <div v-if="$user.admin == 1 || user.admin == 0">
-            <p>{{user.lastname}}</p>
-            <p>{{user.firstname}}</p>
-            <p>{{user.createdAt}}</p>
-    <button class="user-account-delete-user" @click="deleteUserByAdmin(user.id)">Delete account</button>
-            
-            <hr>
+        <div v-if="storageUser.admin == 1">
+          <p class="user-lastname">{{user.lastname}}</p>
+          <p class="user-firstname">{{user.firstname}}</p>
+          <p>Account n°{{user.id}}</p>
+          <button class="user-account-delete-user" @click="deleteUserByAdmin(user.id)">Delete</button>
+          <hr>
         </div>
       </div>
   </div>
@@ -50,6 +50,8 @@
 export default {
   data() {
   return {
+    storageUser: '',
+    storageToken: '',
     url: null,
     image: null,
     errors: [],
@@ -59,24 +61,30 @@ export default {
   }
   },
   mounted (){
+    this.connect();
     this.getOneUser();
     this.getAllPosts();
     this.getAllUsers();
   },
   methods: {
+    connect(){
+        this.storageToken = JSON.parse(localStorage.user).token;
+        this.storageUser = JSON.parse(localStorage.user);
+    },
     trySubmit() {
       if (this.AddProfilImageIsValid() ) {
-        this.$user.avatar = this.image;
+        this.storageUser.avatar = this.image;
         const formData = new FormData();
         formData.append("image", this.image, this.image.name);
-        this.$http.put(`http://localhost:3000/api/auth/${this.$user.userId}`, formData,{
+        this.$http.put(`http://localhost:3000/api/auth/${this.storageUser.userId}`, formData,{
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         })
         .then(
-          document.location.reload()
+          // document.location.reload()
+          console.log("coucou")
         )
         .catch(err => {this.errors.push(err.response.data.error)});
         }
@@ -93,7 +101,7 @@ export default {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
@@ -111,7 +119,7 @@ export default {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
@@ -121,11 +129,11 @@ export default {
       this.url = URL.createObjectURL(this.image);
     },
     getOneUser() {
-       this.$http.get(`http://localhost:3000/api/auth/${this.$user.userId}`,
+       this.$http.get(`http://localhost:3000/api/auth/${this.storageUser.userId}`,
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
@@ -141,7 +149,7 @@ export default {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
@@ -157,7 +165,7 @@ export default {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
@@ -172,19 +180,23 @@ export default {
 </script>
 
 <style scoped>
+template,
+.user-account-contenair,
+.user-data {
+  display: flex;
+}
+
 h2 {
   font-size: 1rem;
 }
 
 template {
-  display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .user-account-contenair {
   margin: auto;
-  display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 1rem;
@@ -209,6 +221,7 @@ template {
   position: relative;
   bottom:2rem;
   left: 7rem;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
 }
 
 span, label {
@@ -216,11 +229,11 @@ span, label {
   margin-top:1rem; 
 }
 
-#user-lastname {
+.user-lastname {
   text-transform: uppercase;
 }
 
-#user-firstnamer {
+.user-firstname {
   text-transform: capitalize;
 }
 
@@ -229,7 +242,6 @@ span, label {
   margin-top: 2rem;
   cursor: pointer;
   width: 8rem;
-  height: 3.5rem;
   border-radius: 0.5rem;
   font-size: 1.2rem;
   margin: 1rem;
@@ -261,14 +273,12 @@ span, label {
 }
 
 .user-data {
- display: flex;
  flex-direction: column;
  margin-top:1rem;
  width: 20rem;
  word-wrap: break-word;
  white-space: wrap;
 }
-
 
 .error-message {
   color: #fd2d01;
@@ -297,5 +307,4 @@ p {
 .user-post {
   text-align: center;
 }
-
 </style>

@@ -1,5 +1,4 @@
-//Import dotenv 
-require('dotenv').config();
+
 //Import Sequelize
 const Sequelize = require("sequelize");
 

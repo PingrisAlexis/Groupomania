@@ -1,10 +1,10 @@
 <template>
 <div class="one-post-contenair">
-  <article  v-for = "post in posts" :key = "post.id">
-    <header class="one-post-info-contenair"  v-for = "user in users" :key = "user.id">
-      <div class="one-post-info-user" v-if="user.id === post.userId">
-        <img v-if="user.avatar" :src="user.avatar" alt="Profil image" :key="user.avatar" class="one-post-info-image">
-        <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil image" class="one-post-info-image">
+  <div class="one-post-card" v-for = "post in posts" :key = "post.id">
+    <div class="one-post-info-contenair"  v-for = "user in users" :key = "user.id">
+      <div class="one-post-info-user" v-if="user.id == post.userId">
+        <img v-if="user.avatar" :src="user.avatar" alt="User's post profil pick" :key="user.avatar" class="one-post-info-image">
+        <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default user's profil pick" class="one-post-info-image">
         <div class="one-post-user-name">
           <div>
             <span id="user-lastname">{{user.lastname}} </span> 
@@ -13,14 +13,14 @@
           <span class="one-post-info-date">The {{dateFormat(post.createdAt)}}</span>
         </div>
       </div>
-    </header>
-    <main>
+    </div>
+    <div class="one-post-main">
       <router-link :to="{ name: 'Post', params: { id : post.id } }">
         <img :src="post.media" alt="Post image" class="one-post-image">
         <h2>{{post.title}}</h2>
       </router-link>
-    </main>
-  </article>
+    </div>
+  </div>
 </div>
 </template>
 
@@ -28,42 +28,51 @@
 export default {
   data(){
     return {
+      storageUser: '',
+      storageToken: '',
       posts: [],
       users:[],
     }
   },
-  mounted() {
-    this.getAllPosts();
+  created() {
+    this.connect();
+    this.getAllUsers();   
+    
   },
   methods: {
+    connect(){
+        this.storageToken = JSON.parse(localStorage.user).token;
+        this.storageUser = JSON.parse(localStorage.user);
+    },
     getAllPosts(){
       this.$http.get('http://localhost:3000/api/posts',
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
       .then(res => {
         this.posts = res.data;  
-        this.getAllUsers();   
       })
-     .catch(err => console.log(err));
+     .catch(err => console.log( err.response.data));
     },
     getAllUsers(){
        this.$http.get('http://localhost:3000/api/auth/',
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
       .then(res => {
         this.users = res.data;
+        this.getAllPosts();
+        
       })
-      .catch(err => console.log(err));
+      .catch(err => console.log(err.response.data));
     },
     dateFormat(date) {
       const postCreatedAt = new Date(date);
@@ -75,7 +84,7 @@ export default {
 </script>
 
 <style scoped>
-article,
+.one-post-card,
 .one-post-contenair,
 .one-post-info-contenair,
 .one-post-info-user,
@@ -83,7 +92,7 @@ article,
   display: flex;
 }
 
-main,
+.one-post-main,
 .one-post-info-contenair {
   box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
 }
@@ -102,13 +111,13 @@ main,
   flex-flow: row wrap;
 }
 
-article {
+.one-post-card {
   flex-direction: column;
   font-size: 1rem;
   width: 25rem;
 }
 
-main {
+.one-post-main {
   margin-top: 0.5rem;
   margin-bottom: 2rem;
   padding-bottom: 2rem;
@@ -116,7 +125,6 @@ main {
   cursor: pointer;
   text-align: center;
   word-wrap: break-word;
-  white-space: wrap;
 }
 
 h2 {
@@ -133,7 +141,6 @@ h2 {
   max-width: 20rem;
   text-overflow: ellipsis;
   overflow: hidden; 
-  white-space: wrap;
 }
 
 .one-post-image {

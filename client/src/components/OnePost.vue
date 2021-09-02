@@ -1,10 +1,10 @@
 <template>
 <div>
-  <article class="post-contenair" >
+  <div class="post-contenair" >
       <header  v-for = "user in users" :key = "user.id">
         <div class="post-contenair-header" v-if="user.id === post.userId">
-          <img v-if="user.avatar" :src="user.avatar" alt="Profil image" :key="user.avatar">
-          <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil image">
+          <img v-if="user.avatar" :src="user.avatar" alt="User's profil pick" :key="user.avatar">
+          <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil pick">
           <div class="post-header-info">
             <div>
               <span class="user-lastname">{{user.lastname}} </span> 
@@ -12,44 +12,41 @@
             </div>
             <span class="one-post-info-date">The {{post.createdAt}}</span>
           </div>
-          <div></div>
         </div>
       </header>
-      <div v-if="post.userId == $user.userId || $user.admin == 1">
-        <button class="btn-edit-post" v-if="!editPost" @click="editPost = true">Modify</button>
-        <button class="btn-cancel-post" v-if="editPost" @click="editPost = false">Back</button>
-        <button class="btn-delete-post"  @click="deletePost()">Delete Post</button>
+      <div >
+        <button v-if="post.userId == storageUser.userId && !editPost" class="btn-edit-post" @click="editPost = true">Options</button>
+        <button v-if="post.userId == storageUser.userId && editPost" class="btn-cancel-post" @click="editPost = false">Back</button>
+        <button v-if="post.userId == storageUser.userId && editPost || storageUser.admin == 1" class="btn-delete-post"  @click="deletePost()">Delete</button>
+        <button v-if="post.userId == storageUser.userId && editPost" class="btn-modify-post"  @click="modifyPost()">Modify</button>
       </div>
-      
       <main v-if="!editPost">
         <h1>{{post.title}}</h1>
         <section>
-          <img :src="this.post.media" />
+          <img :src="this.post.media" alt="Post pick">
           <p class="post-message" v-html="(post.message)"></p>
         </section>
       </main>
       <main v-if="editPost">
          <label for="edit-title"></label>
-            <input @input="handleInputTitle" :value="post.title" type="text" class="edit-post-title" id="modify-title" >
+            <input @input="handleInputTitle" :value="post.title" maxlength="30" type="text" class="edit-post-title" id="edit-title" required>
             <section class="edit-section">
               <div id="preview">
-                <img v-if="this.url" :src="this.url"/>
-                <img v-else :src="this.post.media" />
+                <img v-if="this.url" :src="this.url" alt="Post Image">
+                <img v-else :src="this.post.media" alt="Post Image">
               </div>
-              <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="File" accept=".jpg, .jpeg, .gif, .png">
+              <label class="image-post-file" for="post-file">Click here to choose your article image:</label>
+              <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .gif, .png">
               <vue-editor @input="handleInputMessage" :value="post.message"  cols="30" rows="10" class="edit-post-vue-editor" :editorToolbar="customToolbar">
               </vue-editor>
             </section>
-            <button class="btn-modify-post"  @click="modifyPost()">Modify Post</button>
-        <div class="validate-message">{{messagePostValidation}}</div>
       </main>
-  
-      <footer>
+      <footer v-if="!editPost">
         <div v-for = "comment in comments" :key = "comment.id">
         <div  v-for = "user in users" :key = "user.id">
           <div class="one-comment" v-if=" user.id === comment.userId">
             <div class="one-comment-info">
-              <img v-if="user.avatar" :src="user.avatar" alt="Profil image" :key="user.avatar" class="one-comment-info-image">
+              <img v-if="user.avatar" :src="user.avatar" alt="User's comment profil image" :key="user.avatar" class="one-comment-info-image">
               <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil image" class="one-comment-info-image">
               <div class="one-comment-user">
                 <span class="user-lastname">{{user.lastname}} </span>
@@ -61,30 +58,28 @@
                <p class="comment-content" v-if="editComment == 0">{{comment.comment}}</p>
               <textarea @input="handleInputComment" v-if="editComment == comment.id" :value="comment.comment" type="text"></textarea>
             </div>
-        <div class="validate-message" v-if="editComment == comment.id">{{messageCommentValidation}}</div>
-            
-            <div v-if="comment.userId == $user.userId  || $user.admin == 1">
-              <button class="btn-cancel-post" v-if="editComment == 0" @click="editComment = comment.id">Modify</button>
-              <button class="btn-cancel-post" v-if="editComment == comment.id" @click="editComment = 0">Back</button>
-              <button class="btn-delete-post" v-if="editComment == 0" @click="deleteOneComment(comment.id)">Delete</button>
-              <button class="btn-modify-post" v-if="editComment == comment.id"  @click="modifyOneComment(comment.id)" >Modify</button>
+            <div class="btn-options">
+              <button v-if="comment.userId == storageUser.userId && editComment == 0" class="btn-cancel-post" @click="editComment = comment.id">Options</button>
+              <button v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-cancel-post" @click="editComment = 0">Back</button>
+              <button v-if="comment.userId == storageUser.userId && editComment == comment.id|| storageUser.admin == 1" class="btn-delete-post" @click="deleteOneComment(comment.id)">Delete</button>
+              <button v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-modify-post" @click="modifyOneComment(comment.id)" >Modify</button>
             </div>
             <hr>
           </div>
         </div>
       </div>
       <ul v-if="errors.length">
-          <b>Please correct the following error(s):</b>
-          <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
-        </ul>  
+        <b>Please correct the following error(s):</b>
+        <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
+      </ul>  
       <form  @submit="trySubmitComment" class="one-comment-add">
-          <label for="add-comment">
-            <textarea v-model="comment" class="add-comment"  cols="50" rows="5" placeholder=" Write a comment:"></textarea>
-          </label>
+          <label class="write-comment" for="comment">Click here to write a comment:</label>
+            <textarea v-model="comment" id="comment" class="add-comment"  cols="50" rows="5" placeholder=" Write a comment:"></textarea>
+            
           <button class="btn-add-comment">Submit</button>   
         </form>
       </footer>
-    </article>
+    </div>
   </div>
 </template>
 
@@ -92,7 +87,7 @@
 import { VueEditor } from "vue2-editor";
 
 export default {
-    components: {
+   components: {
     VueEditor
   },
   data(){
@@ -104,6 +99,8 @@ export default {
       [{'background':[]},{'color':[]}],
       ['strike'],
     ],
+      storageToken: "",
+      storageUser:"",
       post: [],
       users: [],
       comment: "",
@@ -123,11 +120,16 @@ export default {
     }
   },
   mounted() {
+    this.connect();
     this.getOnePost();
     this.getAllUsers();
     this.getAllComments();
   },
   methods: {
+    connect(){
+      this.storageToken = JSON.parse(localStorage.user).token;
+      this.storageUser = JSON.parse(localStorage.user);
+    },
     handleInputTitle(event) {
       this.inputDataTitle = event.target.value;
     },
@@ -159,15 +161,15 @@ export default {
       this.$http.put(`http://localhost:3000/api/posts/${postId}`, formData,{
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.$token}`
+          'Authorization': `Bearer ${this.storageToken}`
         }
       })
       .then( () => {
         this.post.media = this.url;
-        this.messagePostValidation = "Your post has been modified!";
         this.getOnePost();
       })
-      .catch(err => {this.errors.push(err.response.data.error)});
+      .catch(err => console.log( err.response.data));
+
     }, 
     getOnePost() {
       const postId = this.$route.params.id;
@@ -175,7 +177,7 @@ export default {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
@@ -190,7 +192,7 @@ export default {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
@@ -205,14 +207,14 @@ export default {
         {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.$token}`
+          'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
       .then(res => {
         this.users = res.data;
       })
-      .catch(err => {this.errors.push(err.response.data.error)});
+      .catch(err => console.log(err.response.data.error));
     },
     getAllComments() {
       var routePostId = parseInt(this.$route.params.id);
@@ -220,21 +222,21 @@ export default {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
       .then(res => {
         this.comments = res.data;
       })
-      .catch(err => {this.errors.push(err.response.data.error)});
+      .catch(err => console.log(err.response.data.error));
     }, 
     trySubmitComment(e) {
     e.preventDefault();
     
     if (this.commentIsValid() ) {
       var routePostId = parseInt(this.$route.params.id);
-      var commentUserId = this.$user.userId;
+      var commentUserId = this.storageUser.userId;
       var commentValue = this.comment;
       var date = new Date();
       const commentDate = date.toLocaleString('en-GB', {
@@ -253,7 +255,7 @@ export default {
       this.$http.post(`http://localhost:3000/api/posts/${routePostId}/comments/`, formData, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.$token}`
+          'Authorization': `Bearer ${this.storageToken}`
       }
       })
       .then (res => {
@@ -263,7 +265,7 @@ export default {
         this.getAllUsers();
       }
       })
-    .catch( err => {this.errors.push( err.response.data.error)});
+      .catch(err => console.log(err.response.data.error));
     }
     },
     commentIsValid() {
@@ -280,7 +282,7 @@ export default {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.$token}`
+            'Authorization': `Bearer ${this.storageToken}`
           }
         }
       )
@@ -296,34 +298,77 @@ export default {
       this.$http.put(`http://localhost:3000/api/posts/${postId}/comments/${commentId}`, formData,{
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.$token}`
+          'Authorization': `Bearer ${this.storageToken}`
         }
       })
       .then( () => {
-        this.messageCommentValidation = "Your comment has been modified!";
         this.getAllComments();
       })
-      .catch(err => {this.errors.push(err.response.data.error)});
+      .catch(err => console.log(err.response.data.error));
     }, 
   },
 }
 </script>
 
 <style scoped>
-.post-contenair {
+.post-contenair,
+.post-contenair-header,
+main,
+section,
+.one-comment,
+.one-comment-info,
+.one-comment-add {
   display: flex;
-  flex-direction: column;
+}
+
+.post-contenair,
+main,
+.one-comment-info,
+.one-comment-add    {
   justify-content: center;
+}
+
+.post-contenair,
+main,
+section,
+.one-comment,
+.one-comment-info,
+.one-comment-add {
   align-items: center;
 }
 
+h1,
+.edit-post-title,
+.validate-message,
+ul,
+.comment-content {
+  text-align: center;
+}
+
+.post-contenair,
+main,
+section,
+.one-comment,
+.one-comment-info,
+.one-comment-add {
+  flex-direction: column;
+}
+
+.post-contenair-header,
+h1,
+section,
+.comment-content,
+.one-comment-info-image,
+textarea,
+button {
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
+}
+
 .post-contenair-header {
-  display: flex;
   background: #f1f2f6;
   border-radius: 1rem;
   font-size: 1.2rem;
   margin-bottom: 1rem;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
 }
 
 .post-contenair-header img {
@@ -349,12 +394,9 @@ export default {
 .user-firstname {
   text-transform: capitalize;
 }
+
 main {
-  display: flex;
-  flex-direction: column;
   border-radius: 1rem;
-  justify-content: center;
-  align-items: center;
 }
 
 textarea {
@@ -362,17 +404,12 @@ textarea {
 }
 
 h1 {
+  margin-top: 1rem;
   font-size: 2rem;
-  text-align: center;
   border-radius: 1rem;
   height: 3rem;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
-  display: inline-block;
-  position: relative;
-  bottom: 1rem;
   background-color: #ffffff;
   padding: 1rem;
-  white-space: wrap;
   word-wrap:break-word;
   overflow: hidden;
 }
@@ -380,24 +417,20 @@ h1 {
 .post-message {
   font-size: 1.2rem;
   max-width: 30rem;
-   white-space: wrap;
+  white-space: wrap;
   word-wrap:initial;
   overflow: hidden;
 }
 
 section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   position: relative;
-  bottom: 2rem;
-  padding: -1rem;
   border-radius: 1rem;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
+  padding-bottom: 1rem;
 }
 
 .edit-section {
-  margin-top: 5.1rem;
+  margin-top: 1.2rem;
+  margin-bottom: 1rem;
 }
 
 section img {
@@ -409,13 +442,12 @@ section img {
 
 .edit-post-title {
   font-size: 2rem;
-  text-align: center;
-  margin-top: 0.5rem;
+  margin-top: 2.5rem;
 }
 
 section span,
 .edit-post-vue-editor {
-  max-width: 30rem;
+  max-width: 34rem;
   font-size: 1rem;
 }
 
@@ -432,8 +464,7 @@ textarea {
 .validate-message {
   color: green;
   font-weight: bold;
-  text-align: center;
-  font-size: 1rem;
+  font-size: 1.4rem;
 }
 
 .error-message {
@@ -443,16 +474,8 @@ textarea {
 }
 
 ul {
-  text-align: center;
   font-size: 1rem;
   list-style:none;
-  
-}
-
-.one-comment {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .one-comment-user {
@@ -460,24 +483,17 @@ ul {
 }
 
 .comment-content {
-  font-size: 1rem;
+  font-size: 1.2rem;
   background: #f1f2f6;
   padding: 0.8rem;
-  margin-bottom: 1.8rem;
   border-radius: 1rem;
   max-width: 15rem;
-  text-align: center;
   white-space: wrap;
   word-wrap: break-word;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
 }
 
 .one-comment-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 .one-comment-info-image {
@@ -486,15 +502,6 @@ ul {
   height: 5rem;
   width: 5rem;
   object-fit: cover;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
-  
-}
-
-.one-comment-add {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 hr {
@@ -504,6 +511,7 @@ hr {
 footer {
   overflow-x: hidden;
 }
+
 .btn-add-comment,
 .btn-modify-post,
 .btn-delete-post,
@@ -512,20 +520,13 @@ footer {
   cursor: pointer;
   width: 8rem;
   border-radius: 0.5rem;
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: bold;
 }
 
 .btn-edit-post,
 .btn-cancel-post {
-  background-color: #ffffff;
-  color: orange;
-}
-
-.btn-edit-post:hover,
-.btn-cancel-post:hover {
-  transition: 0.6s;
-  color: #ffffff;
+  color: #333;
   background-color: orange;
 }
 
@@ -543,7 +544,7 @@ footer {
 }
 
 .btn-add-comment {
- margin-top: 1rem; 
+ margin-bottom: 1.5rem; 
 }
 
 .btn-delete-post {
@@ -557,17 +558,21 @@ footer {
   background-color: #fd2d01;
 }
 
+.write-comment,
+.image-post-file {
+  font-size: 1.4rem;
+}
+  
 @media screen and (max-width: 680px) {
- h1,
+
  section img,
  header {
-   width: 91vw;
+   width: 100vw;
  }
+  h1,
  textarea,
  .post-message {
-   width: 90vw;
-   padding-left: 0rem;
-   border-radius: 0rem;
+   width: 86vw;
  }
 }
 
