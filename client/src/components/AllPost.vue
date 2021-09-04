@@ -1,5 +1,6 @@
 <template>
 <div class="one-post-contenair">
+  
   <div class="one-post-card" v-for = "post in posts" :key = "post.id">
     <div class="one-post-info-contenair"  v-for = "user in users" :key = "user.id">
       <div class="one-post-info-user" v-if="user.id == post.userId">
@@ -14,6 +15,7 @@
         </div>
       </div>
     </div>
+    
     <div class="one-post-main">
       <router-link :to="{ name: 'Post', params: { id : post.id } }">
         <img :src="post.media" alt="Post image" class="one-post-image">
@@ -21,6 +23,7 @@
       </router-link>
     </div>
   </div>
+  
 </div>
 </template>
 
@@ -54,9 +57,8 @@ export default {
         }
       )
       .then(res => {
-        this.posts = res.data;  
+        this.posts = res.data;
       })
-     .catch(err => console.log( err.response.data));
     },
     getAllUsers(){
        this.$http.get('http://localhost:3000/api/auth/',
@@ -72,7 +74,6 @@ export default {
         this.getAllPosts();
         
       })
-      .catch(err => console.log(err.response.data));
     },
     dateFormat(date) {
       const postCreatedAt = new Date(date);

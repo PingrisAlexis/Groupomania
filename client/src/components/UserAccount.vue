@@ -1,31 +1,36 @@
 <template>
   <div class="user-account-contenair" >
+    
     <div class="user-account-img-contenair">
       <div id="preview">
         <img v-if="this.url" :src="this.url" alt="Preview user's profil pick">
-        <img v-else-if="this.user.avatar" :src="this.user.avatar" alt="User's profil pick"/>
+        <img v-else-if="this.user.avatar" :src="this.user.avatar" alt="User's profil pick">
         <img v-else src="../assets/random-user.png" alt="User's account random pick">
       </div>
-      <label for="preview-file">Click here to choose your profil image:</label>
-      <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="preview-file" accept=".jpg, .jpeg, .gif, .png">
+      <input aria-label="Click here to choose your profil image" class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="preview-file" accept=".jpg, .jpeg, .gif, .png">
     </div>
+    
     <div>
       <button class="user-account-modify-user" @click="trySubmit()">Save new profil pick</button>
-      <button class="user-account-delete-user" @click="deleteUser(user.id)">Delete account</button>
+      <button v-if="this.user.admin == 0" class="user-account-delete-user" @click="deleteUser(user.id)">Delete account</button>
     </div>
+    
     <div class="user-data">
       <div class="user-data-name">
-        <span class="user-lastname" >{{this.storageUser.lastname}} </span>
-        <span class="user-firstname"> {{this.storageUser.firstname}}</span>
+        <span class="user-lastname">{{this.user.lastname}} </span>
+        <span class="user-firstname"> {{this.user.firstname}}</span>
       </div>
-      <span>Account N° {{this.storageUser.userId}}</span>
+      <span>Account N° {{this.user.id}}</span>
     </div>
+    
     <ul v-if="errors.length">
         <b>Please correct the following error(s):</b>
         <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
-      </ul>
+    </ul>
+    
+      <span class="lists" v-if="storageUser.admin == 1">POSTS LIST</span>
       <div v-for= "post in posts" :key="post.id">
-        <div  v-if="post.userId == user.id">
+        <div  v-if="post.userId == user.id || storageUser.admin == 1">
           <router-link class="user-post" :to="{ name: 'Post', params: { id: post.id } }">
             <p>The {{post.createdAt}}</p>
             <p class="user-post-title">{{post.title}}</p>
@@ -33,15 +38,18 @@
             <hr>
         </div>
       </div>
+      
+      <span v-if="storageUser.admin == 1" class="lists">USERS LIST</span>
       <div v-for= "user in users" :key="user.id">
-        <div v-if="storageUser.admin == 1">
-          <p class="user-lastname">{{user.lastname}}</p>
-          <p class="user-firstname">{{user.firstname}}</p>
-          <p>Account n°{{user.id}}</p>
-          <button class="user-account-delete-user" @click="deleteUserByAdmin(user.id)">Delete</button>
+        <div class="user-list" v-if="storageUser.admin == 1 && storageUser.userId != user.id">
+          <button class="user-account-delete-user-by-admin" @click="deleteUserByAdmin(user.id)"><i class="fas fa-trash-alt"></i></button>
+          <span>N°{{user.id}} </span>
+          <span class="user-lastname">{{user.lastname}} </span>
+          <span class="user-firstname">{{user.firstname}}</span>
           <hr>
         </div>
       </div>
+      
   </div>
 </template>
 
@@ -68,14 +76,15 @@ export default {
   },
   methods: {
     connect(){
-        this.storageToken = JSON.parse(localStorage.user).token;
-        this.storageUser = JSON.parse(localStorage.user);
+      this.storageToken = JSON.parse(localStorage.user).token;
+      this.storageUser = JSON.parse(localStorage.user);
     },
     trySubmit() {
       if (this.AddProfilImageIsValid() ) {
         this.storageUser.avatar = this.image;
         const formData = new FormData();
         formData.append("image", this.image, this.image.name);
+        
         this.$http.put(`http://localhost:3000/api/auth/${this.storageUser.userId}`, formData,{
           headers: {
             'Content-Type': 'application/json',
@@ -83,14 +92,13 @@ export default {
           }
         })
         .then(
-          // document.location.reload()
-          console.log("coucou")
+          document.location.reload()
         )
-        .catch(err => {this.errors.push(err.response.data.error)});
-        }
+      }
     },
     AddProfilImageIsValid() {
       this.errors = [];
+      
       if (!this.image) {
         this.errors.push('There is no image to upload.');
       }
@@ -105,14 +113,10 @@ export default {
           }
         }
       )
-      .then(
-        localStorage.removeItem('user')
-      )
-      .then(
-
-        window.location="/Login"
-        
-      )
+      .then( () => {
+        localStorage.clear();
+        window.location="/Login";
+      })
     },
     deleteUserByAdmin(userId){
       this.$http.delete(`http://localhost:3000/api/auth/${userId}`,
@@ -123,13 +127,16 @@ export default {
           }
         }
       )
+      .then(
+        document.location.reload()
+      )
     },
     upload() {
       this.image = this.$refs.image.files[0];
       this.url = URL.createObjectURL(this.image);
     },
     getOneUser() {
-       this.$http.get(`http://localhost:3000/api/auth/${this.storageUser.userId}`,
+      this.$http.get(`http://localhost:3000/api/auth/${this.storageUser.userId}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -140,12 +147,9 @@ export default {
       .then(res => {
         this.user = res.data;
       })
-      .catch(err => {
-        this.errors.push(err.response.data.error)
-      });
     },
     getAllUsers() {
-       this.$http.get(`http://localhost:3000/api/auth`,
+      this.$http.get(`http://localhost:3000/api/auth`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -156,9 +160,6 @@ export default {
       .then(res => {
         this.users = res.data;
       })
-      .catch(err => {
-        this.errors.push(err.response.data.error)
-      });
     },
      getAllPosts(){
       this.$http.get('http://localhost:3000/api/posts',
@@ -170,10 +171,8 @@ export default {
         }
       )
       .then(res => {
-        this.posts = res.data; 
-    
+        this.posts = res.data;
       })
-      .catch(err => {this.errors.push(err.response.data.error)});
     },
   }
 }
@@ -195,6 +194,10 @@ template {
   align-items: center;
 }
 
+hr {
+  width: 5rem;
+}
+
 .user-account-contenair {
   margin: auto;
   justify-content: center;
@@ -205,6 +208,7 @@ template {
   flex-flow: row wrap;
   flex-direction: column;
   margin-top: 3rem;
+  margin-bottom: 2rem;
 }
 
 .user-account-img-contenair {
@@ -247,7 +251,10 @@ span, label {
   margin: 1rem;
   font-weight: bold;
 }
-
+.user-post-title {
+  text-transform: uppercase;
+  font-weight: bold;
+}
 .user-account-modify-user {
   background-color: #ffffff;
   color: green;
@@ -304,7 +311,26 @@ p {
   font-size: 1rem;
 }
 
-.user-post {
+.lists {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.lists,
+.user-post,
+.user-list
+ {
   text-align: center;
+}
+
+.user-account-delete-user-by-admin {
+   margin-top: 2rem;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  font-size: 1.2rem;
+  margin: 1rem;
+  font-weight: bold;
+  color: red;
+  background: #ffffff;
 }
 </style>

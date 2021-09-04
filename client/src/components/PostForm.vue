@@ -1,26 +1,32 @@
 <template>
   <div class="add-post-contenair">
     <form  @submit="trySubmit">
+      
       <div id="preview">
-          <img v-if="url" :src="url" alt="Post Image">
-          <img v-else src="../assets/groupomania-local.png" alt="Default Post Image">
+          <img v-if="url" :src="url" alt="Post pick">
+          <img v-else src="../assets/groupomania-local.png" alt="Default Post pick">
       </div>
-      <label class="post-form-file" for="post-file">Click to choose your article image:</label>
-      <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .gif, .png">
+    
+      <input aria-label="Click to choose your article image" class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .gif, .png">
+      
       <div class="add-post-form-group">
         <label for="title">Title:</label>
         <input v-model="title" id="title" type="text" maxlength="30" name="title" class="title" required/>
         <label for="message">Message:</label>
         <vue-editor cols="30" id="message" rows="10" class="add-post-vue-editor" v-model="message" :editorToolbar="customToolbar" required></vue-editor>
       </div>
+      
       <ul v-if="errors.length">
         <b>Please correct the following error(s):</b>
         <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
       </ul>
+      
       <div class="validate-message">{{messagePostValidation}}</div>
+      
       <div class="add-post-form-btn-container">
         <button class="btn-submit">Submit</button>
       </div>
+      
     </form>
   </div>
 </template>
@@ -92,7 +98,6 @@ data() {
             this.image = null;
           }
         })
-        .catch(err => console.log( err.response.data));
       }
     },
     postIsValid() {

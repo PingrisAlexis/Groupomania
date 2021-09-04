@@ -8,11 +8,11 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     },
     firstname: {
-      type: DataTypes.STRING(30),
+      type: DataTypes.STRING(25),
       allowNull: false
     },
     lastname: {
-      type: DataTypes.STRING(30),
+      type: DataTypes.STRING(25),
       allowNull: false
     },
     email: {
@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
       unique: "email"
     },
     password: {
-      type: DataTypes.STRING(70),
+      type: DataTypes.STRING(255),
       allowNull: false
     },
     avatar: {
