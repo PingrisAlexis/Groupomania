@@ -15,10 +15,10 @@
         </div>
       </header>
       <div >
-        <button v-if="post.userId == storageUser.userId && !editPost" class="btn-edit-post" @click="editPost = true">Options</button>
-        <button v-if="post.userId == storageUser.userId && editPost" class="btn-cancel-post" @click="editPost = false">Back</button>
-        <button v-if="post.userId == storageUser.userId && editPost || storageUser.admin == 1" class="btn-delete-post"  @click="deletePost()">Delete</button>
-        <button v-if="post.userId == storageUser.userId && editPost" class="btn-modify-post"  @click="modifyPost()">Modify</button>
+        <button aria-label="Post options" v-if="post.userId == storageUser.userId && !editPost" class="btn-edit-post" @click="editPost = true"><i class="fas fa-bars"></i></button>
+        <button aria-label="Back from post options" v-if="post.userId == storageUser.userId && editPost" class="btn-cancel-post" @click="editPost = false"><i class="fas fa-undo"></i></button>
+        <button aria-label="Delete the post" v-if="post.userId == storageUser.userId  && editPost || storageUser.admin == 1" class="btn-delete-post" @click="deletePost()"><i class="fas fa-trash-alt"></i></button>
+        <button aria-label="Modify the post" v-if="post.userId == storageUser.userId && editPost" class="btn-modify-post"  @click="modifyPost()"><i class="fas fa-check"></i></button>
       </div>
       <main v-if="!editPost">
         <h1>{{post.title}}</h1>
@@ -28,26 +28,24 @@
         </section>
       </main>
       <main v-if="editPost">
-         <label for="edit-title"></label>
-            <input @input="handleInputTitle" :value="post.title" maxlength="30" type="text" class="edit-post-title" id="edit-title" required>
-            <section class="edit-section">
-              <div id="preview">
-                <img v-if="this.url" :src="this.url" alt="Post Image">
-                <img v-else :src="this.post.media" alt="Post Image">
-              </div>
-              <label class="image-post-file" for="post-file">Click here to choose your article image:</label>
-              <input class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .gif, .png">
-              <vue-editor @input="handleInputMessage" :value="post.message"  cols="30" rows="10" class="edit-post-vue-editor" :editorToolbar="customToolbar">
-              </vue-editor>
-            </section>
+        <input aria-label="Edit the title" @input="handleInputTitle" :value="post.title" maxlength="30" type="text" class="edit-post-title" id="edit-title" required>
+        <div class="edit-section">
+          <div id="preview">
+            <img v-if="this.url" :src="this.url" alt="Post Image">
+            <img v-else :src="this.post.media" alt="Post Image">
+          </div>
+          <input aria-label="Click to modify your article image" class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .gif, .png">
+          <vue-editor @input="handleInputMessage" :value="post.message"  cols="30" rows="10" class="edit-post-vue-editor" :editorToolbar="customToolbar">
+          </vue-editor>
+        </div>
       </main>
       <footer v-if="!editPost">
         <div v-for = "comment in comments" :key = "comment.id">
         <div  v-for = "user in users" :key = "user.id">
           <div class="one-comment" v-if=" user.id === comment.userId">
             <div class="one-comment-info">
-              <img v-if="user.avatar" :src="user.avatar" alt="User's comment profil image" :key="user.avatar" class="one-comment-info-image">
-              <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil image" class="one-comment-info-image">
+              <img v-if="user.avatar" :src="user.avatar" alt="User's comment profil pick" :key="user.avatar" class="one-comment-info-image">
+              <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil pick" class="one-comment-info-image">
               <div class="one-comment-user">
                 <span class="user-lastname">{{user.lastname}} </span>
                 <span class="user-firstname">{{user.firstname}} </span>
@@ -55,28 +53,27 @@
               <div>
                 <span>The {{comment.createdAt}}</span>
               </div>
-               <p class="comment-content" v-if="editComment == 0">{{comment.comment}}</p>
-              <textarea @input="handleInputComment" v-if="editComment == comment.id" :value="comment.comment" type="text"></textarea>
+               <p class="comment-content">{{comment.comment}}</p>
+              <textarea contentEditable class="edit-comment-content" aria-label="Click here to modify the comment" id="edit-comment" @input="handleInputComment" v-if="editComment == comment.id" :value="comment.comment" type="text"></textarea>
             </div>
             <div class="btn-options">
-              <button v-if="comment.userId == storageUser.userId && editComment == 0" class="btn-cancel-post" @click="editComment = comment.id">Options</button>
-              <button v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-cancel-post" @click="editComment = 0">Back</button>
-              <button v-if="comment.userId == storageUser.userId && editComment == comment.id|| storageUser.admin == 1" class="btn-delete-post" @click="deleteOneComment(comment.id)">Delete</button>
-              <button v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-modify-post" @click="modifyOneComment(comment.id)" >Modify</button>
+              <button aria-label="Comment option" v-if="comment.userId == storageUser.userId && editComment == 0" class="btn-cancel-post" @click="editComment = comment.id"><i class="fas fa-bars"></i></button>
+              <button aria-label="Back from comment option" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-cancel-post" @click="editComment = 0"><i class="fas fa-undo"></i></button>
+              <button aria-label="Delete the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id|| storageUser.admin == 1" class="btn-delete-post" @click="deleteOneComment(comment.id)"><i class="fas fa-trash-alt"></i></button>
+              <button aria-label="Modify the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-modify-post" @click="modifyOneComment(comment.id)"><i class="fas fa-check"></i></button>
             </div>
             <hr>
           </div>
         </div>
-      </div>
-      <ul v-if="errors.length">
-        <b>Please correct the following error(s):</b>
-        <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
-      </ul>  
-      <form  @submit="trySubmitComment" class="one-comment-add">
-          <label class="write-comment" for="comment">Click here to write a comment:</label>
-            <textarea v-model="comment" id="comment" class="add-comment"  cols="50" rows="5" placeholder=" Write a comment:"></textarea>
-            
-          <button class="btn-add-comment">Submit</button>   
+        </div>
+        <ul v-if="errors.length">
+          <b>Please correct the following error(s):</b>
+          <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
+        </ul>  
+        <form  @submit="trySubmitComment" class="one-comment-add">
+          <textarea aria-label="Click here to write a comment" v-model="comment" id="comment" class="add-comment"  cols="50" rows="5" placeholder=" Write a comment:"></textarea>
+          <button aria-label="Send the new comment" class="btn-add-comment">Send</button>
+          <hr>
         </form>
       </footer>
     </div>
@@ -168,8 +165,6 @@ export default {
         this.post.media = this.url;
         this.getOnePost();
       })
-      .catch(err => console.log( err.response.data));
-
     }, 
     getOnePost() {
       const postId = this.$route.params.id;
@@ -184,7 +179,6 @@ export default {
       .then(res => {
         this.post = res.data;
       })
-      .catch(err => {this.errors.push(err.response.data.error)});
     },
     deletePost(){
       const postId = this.$route.params.id;
@@ -214,7 +208,6 @@ export default {
       .then(res => {
         this.users = res.data;
       })
-      .catch(err => console.log(err.response.data.error));
     },
     getAllComments() {
       var routePostId = parseInt(this.$route.params.id);
@@ -229,7 +222,6 @@ export default {
       .then(res => {
         this.comments = res.data;
       })
-      .catch(err => console.log(err.response.data.error));
     }, 
     trySubmitComment(e) {
     e.preventDefault();
@@ -265,7 +257,6 @@ export default {
         this.getAllUsers();
       }
       })
-      .catch(err => console.log(err.response.data.error));
     }
     },
     commentIsValid() {
@@ -304,7 +295,6 @@ export default {
       .then( () => {
         this.getAllComments();
       })
-      .catch(err => console.log(err.response.data.error));
     }, 
   },
 }
@@ -314,6 +304,7 @@ export default {
 .post-contenair,
 .post-contenair-header,
 main,
+.edit-section,
 section,
 .one-comment,
 .one-comment-info,
@@ -330,6 +321,7 @@ main,
 
 .post-contenair,
 main,
+.edit-section,
 section,
 .one-comment,
 .one-comment-info,
@@ -347,6 +339,7 @@ ul,
 
 .post-contenair,
 main,
+.edit-section,
 section,
 .one-comment,
 .one-comment-info,
@@ -356,6 +349,7 @@ section,
 
 .post-contenair-header,
 h1,
+.edit-section,
 section,
 .comment-content,
 .one-comment-info-image,
@@ -407,7 +401,6 @@ h1 {
   margin-top: 1rem;
   font-size: 2rem;
   border-radius: 1rem;
-  height: 3rem;
   background-color: #ffffff;
   padding: 1rem;
   word-wrap:break-word;
@@ -422,17 +415,21 @@ h1 {
   overflow: hidden;
 }
 
+.edit-section,
 section {
   position: relative;
   border-radius: 1rem;
   padding-bottom: 1rem;
 }
 
+
 .edit-section {
-  margin-top: 1.2rem;
+  margin-top: 2.1rem;
   margin-bottom: 1rem;
+  
 }
 
+.edit-section img,
 section img {
   height: 15rem;
   width: 38rem;
@@ -518,17 +515,25 @@ footer {
 .btn-edit-post,
 .btn-cancel-post {
   cursor: pointer;
-  width: 8rem;
   border-radius: 0.5rem;
   font-size: 1.3rem;
   font-weight: bold;
+  margin: 1rem;
 }
 
 .btn-edit-post,
 .btn-cancel-post {
   color: #333;
-  background-color: orange;
+  background-color: #ffffff;
 }
+
+.btn-edit-post:hover,
+.btn-cancel-post:hover {
+  transition: 0.6s;
+  color: #ffffff;
+  background-color: #333;
+}
+
 
 .btn-add-comment,
 .btn-modify-post {
@@ -561,6 +566,12 @@ footer {
 .write-comment,
 .image-post-file {
   font-size: 1.4rem;
+}
+
+.edit-comment-content {
+    width: auto;
+    min-height: 5rem;
+    overflow: auto;
 }
   
 @media screen and (max-width: 680px) {

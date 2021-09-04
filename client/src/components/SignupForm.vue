@@ -1,35 +1,36 @@
 <template class="template">
   <div class="signup-contenair">
-    <form @submit="trySubmit" class="signup-form" id="signup">
+    <form @submit.prevent="trySubmitSignup" class="signup-form" id="signup">
       <div class="signup-form-img-contenair">
         <img src="../assets/groupomania-local.png" alt="Logo Groupomania">
       </div>
       <nav>
-      <router-link to="/LoginForm" class="router-link-inactive">Log in</router-link> 
-      | 
-      <router-link to="/SignupForm" class="router-link-active">Sign up</router-link>
-    </nav>
-        <label for="signup-firstname">Firstname:</label>
-        <input  v-model="form.firstname" type="text" id="signup-firstname"/>
+        <router-link to="/LoginForm" class="router-link-inactive">Log in</router-link> 
+        | 
+        <router-link to="/SignupForm" class="router-link-active">Sign up</router-link>
+      </nav>
+      <label for="signup-firstname">Firstname:</label>
+      <input maxlength="25" v-model="form.firstname" type="text" id="signup-firstname">
       
-        <label for="signup-lastname">Lastname:</label>
-        <input v-model="form.lastname" type="text" id="signup-lastname"/>
+      <label for="signup-lastname">Lastname:</label>
+      <input maxlength="25" v-model="form.lastname" type="text" id="signup-lastname">
 
-        <label for="signup-email">E-mail:</label>
-        <input v-model="form.email" type="email" id="signup-email"/>
+      <label for="signup-email">E-mail:</label>
+      <input v-model="form.email" type="text" id="signup-email">
         
-        <label for="signup-password">Password:</label>
-        <input v-model="form.password" type="password" id="signup-password"/>
+      <label for="signup-password">Password:</label>
+      <input v-model="form.password" type="password" id="signup-password">
 
-        <label for="signup-password-verification">Password verification:</label>
-        <input  v-model="form.passwordVerification"  type="password" id="signup-password-verification"/>
+      <label for="signup-password-verification">Password verification:</label>
+      <input  v-model="form.passwordVerification"  type="password" id="signup-password-verification">
 
-        <ul v-if="errors.length">
-          <b>Please correct the following error(s):</b>
-          <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
-        </ul>
-         <div class="validate-message">{{message}}</div>
-        <button id="signup-btn" type="submit">Submit</button>
+      <ul v-if="errors.length">
+        <b>Please correct the following error(s):</b>
+        <li class="error-message" v-for="error in errors" :key="error">{{ error }}</li>
+      </ul>
+        
+      <div class="validate-message">{{message}}</div>
+      <button id="signup-btn" type="submit">Submit</button>
     </form>
   </div>
 </template>
@@ -49,44 +50,57 @@ export default {
       errors: []
       }
     },
- methods: {
-  trySubmit(e) {
-    e.preventDefault();
-    if (this.signupIsValid()) {
-       this.$http.post('http://localhost:3000/api/auth/signup', this.form )
-     .then(res => {
-        if(res.status === 201) {
-          this.message = "Your account has been created, please login.";
-          this.form.firstname= "";
-          this.form.lastname= "";
-          this.form.email= "";
-          this.form.password= "";
-          this.form.passwordVerification="";
+  methods: {
+    trySubmitSignup() {
+    
+      if (this.signupIsValid()) {
+        this.$http.post('http://localhost:3000/api/auth/signup', this.form)
+       
+        .then(res => {
+          if(res.status === 201) {
+            this.message = "Your account has been created, please login.";
+            this.form.firstname= "";
+            this.form.lastname= "";
+            this.form.email= "";
+            this.form.password= "";
+            this.form.passwordVerification="";
+          }
+        })
+        .catch(err => {
+          this.errors = [];
+      
+          if (err.response.status === 404) {    
+            this.errors.push(err.response.data.error);
+          }
+          if (err.response.status === 400) {    
+            this.errors.push(err.response.data.error);
+          }
+      
+          return this.errors.length ? false : true;
+        })
       }
-    })
-     .catch(err => {this.errors.push(err.response.data.error)});
+    },
+    signupIsValid() {
+      this.errors = [];
+    
+      if (!this.form.firstname) {
+        this.errors.push("Firstname is required");
+      }
+      if (!this.form.lastname) {
+        this.errors.push("Lastname is required");
+      }
+      if (!this.form.email) {
+        this.errors.push("Email is required");
+      } 
+      if (!this.form.password) {
+        this.errors.push("Password is required");
+      }
+      if (this.form.password != this.form.passwordVerification) {
+        this.errors.push("Password is not verified");
+      }
+      return this.errors.length ? false : true;
     }
-  },
-  signupIsValid() {
-    this.errors = [];
-    if (!this.form.firstname) {
-      this.errors.push('Firstname is required');
-    }
-    if (!this.form.lastname) {
-      this.errors.push('Lastname is required');
-    }
-    if (!this.form.email) {
-      this.errors.push('Email is required');
-    } 
-    if (!this.form.password) {
-      this.errors.push('Password is required');
-    }
-    if (this.form.password != this.form.passwordVerification) {
-      this.errors.push('Password is not validate');
-    }
-    return this.errors.length ? false : true;
   }
-}
 }
 </script>
 

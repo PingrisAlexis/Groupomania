@@ -80,7 +80,7 @@ exports.deleteOnePost = (req, res, next) => {
       fs.unlink("images/"+ filename, () => {
         Post.destroy({ where: { id: req.params.id } })
           .then(
-            () => res.status(200).json({ message: 'The post has been deleted !' })
+            () => res.status(200).json({ message: "The post has been deleted" })
           )
           .catch(error => res.status(400).json({ error }));
       });
@@ -89,3 +89,6 @@ exports.deleteOnePost = (req, res, next) => {
       (error) => res.status(500).json({ error })
     );
 };
+
+
+
