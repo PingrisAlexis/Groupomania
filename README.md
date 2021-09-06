@@ -30,9 +30,9 @@
 
 #### Backend part: 
 
-- Stay in the root of the application then `npm install`.
-
 - Create `.env` file in the root of the project, then, add the lines of code sent separately (PDF).
+
+- Stay in the root of the application then `npm install`.
 
 - Now, you can run `nodemon`
 
