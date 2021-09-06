@@ -19,7 +19,7 @@
       <div >
         <button aria-label="Post options" v-if="post.userId == storageUser.userId && !editPost" class="btn-edit-post" @click="editPost = true"><i class="fas fa-bars"></i></button>
         <button aria-label="Back from post options" v-if="post.userId == storageUser.userId && editPost" class="btn-cancel-post" @click="editPost = false"><i class="fas fa-undo"></i></button>
-        <button aria-label="Delete the post" v-if="post.userId == storageUser.userId  && editPost || storageUser.admin == 1" class="btn-delete-post" @click="deletePost()"><i class="fas fa-trash-alt"></i></button>
+        <button aria-label="Delete the post" v-if="post.userId == storageUser.userId  && editPost || storageUser.admin == 1 && post.userId != storageUser.userId" class="btn-delete-post" @click="deletePost()"><i class="fas fa-trash-alt"></i></button>
         <button aria-label="Modify the post" v-if="post.userId == storageUser.userId && editPost" class="btn-modify-post"  @click="modifyPost()"><i class="fas fa-check"></i></button>
       </div>
       
@@ -64,7 +64,7 @@
               <div class="btn-options">
                 <button aria-label="Comment option" v-if="comment.userId == storageUser.userId && editComment == 0" class="btn-cancel-post" @click="editComment = comment.id"><i class="fas fa-bars"></i></button>
                 <button aria-label="Back from comment option" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-cancel-post" @click="editComment = 0"><i class="fas fa-undo"></i></button>
-                <button aria-label="Delete the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id|| storageUser.admin == 1" class="btn-delete-post" @click="deleteOneComment(comment.id)"><i class="fas fa-trash-alt"></i></button>
+                <button aria-label="Delete the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id || storageUser.admin == 1 &&comment.userId != storageUser.userId" class="btn-delete-post" @click="deleteOneComment(comment.id)"><i class="fas fa-trash-alt"></i></button>
                 <button aria-label="Modify the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-modify-post" @click="modifyOneComment(comment.id)"><i class="fas fa-check"></i></button>
               </div>
               <hr>
