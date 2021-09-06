@@ -32,13 +32,13 @@
       </main>
       
       <main v-if="editPost">
-        <input aria-label="Edit the title" @input="handleInputTitle" :value="post.title" maxlength="30" type="text" class="edit-post-title" id="edit-title" required>
+        <input aria-label="Edit the title" :value="post.title" @change="handleInputTitle" maxlength="30" type="text" class="edit-post-title" id="edit-title" required>
         <div class="edit-section">
           <div id="preview">
-            <img v-if="this.url" :src="this.url" alt="Post Image">
+            <img v-if="url" :src="url" alt="Post Image">
             <img v-else :src="this.post.media" alt="Post Image">
           </div>
-          <input aria-label="Click to modify your article image" class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .gif, .png">
+          <input aria-label="Click to modify your article image" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .gif, .png">
           <vue-editor @input="handleInputMessage" :value="post.message"  cols="30" rows="10" class="edit-post-vue-editor" :editorToolbar="customToolbar">
           </vue-editor>
         </div>
@@ -58,13 +58,13 @@
                 <div>
                   <span>The {{comment.createdAt}}</span>
                 </div>
-                <p class="comment-content">{{comment.comment}}</p>
+                <p v-if="editComment != comment.id " class="comment-content">{{comment.comment}}</p>
                 <textarea contentEditable class="edit-comment-content" aria-label="Click here to modify the comment" id="edit-comment" @input="handleInputComment" v-if="editComment == comment.id" :value="comment.comment" type="text"></textarea>
               </div>
               <div class="btn-options">
                 <button aria-label="Comment option" v-if="comment.userId == storageUser.userId && editComment == 0" class="btn-cancel-post" @click="editComment = comment.id"><i class="fas fa-bars"></i></button>
                 <button aria-label="Back from comment option" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-cancel-post" @click="editComment = 0"><i class="fas fa-undo"></i></button>
-                <button aria-label="Delete the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id || storageUser.admin == 1 &&comment.userId != storageUser.userId" class="btn-delete-post" @click="deleteOneComment(comment.id)"><i class="fas fa-trash-alt"></i></button>
+                <button aria-label="Delete the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id|| storageUser.admin == 1 && comment.userId != storageUser.userId" class="btn-delete-post" @click="deleteOneComment(comment.id)"><i class="fas fa-trash-alt"></i></button>
                 <button aria-label="Modify the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-modify-post" @click="modifyOneComment(comment.id)"><i class="fas fa-check"></i></button>
               </div>
               <hr>
@@ -117,7 +117,7 @@ export default {
       media: "",
       inputDataTitle: "",
       inputDataMessage:"",
-      url: null,
+      url: null
     }
   },
   mounted() {
@@ -143,18 +143,23 @@ export default {
     upload() {
       this.image = this.$refs.image.files[0];
       this.url = URL.createObjectURL(this.image);
+      if (this.post.title != this.inputDataTitle) {
+        this.post.title = this.inputDataTitle;
+      }
     },
     modifyPost() {
       const postId = this.$route.params.id;
       const currentImgUrl = document.querySelector("#preview").querySelector("img").src;
       const formData = new FormData();
-
+      
+      this.post.title = this.inputDataTitle;
+      formData.append("title", this.inputDataTitle);
+        
       if (currentImgUrl != this.post.media) {
         formData.append("image", this.image, this.image.name);
       }
-      if (this.post.title != this.inputDataTitle) {
-        formData.append("title", this.inputDataTitle);
-      }
+        
+
       if (this.post.message != this.inputDataMessage) {
         formData.append("message", this.inputDataMessage);
       }
@@ -427,7 +432,7 @@ section {
 
 
 .edit-section {
-  margin-top: 2.1rem;
+  margin-top: 1.5rem;
   margin-bottom: 1rem;
   
 }

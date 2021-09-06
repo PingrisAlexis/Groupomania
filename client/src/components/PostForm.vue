@@ -7,7 +7,7 @@
           <img v-else src="../assets/groupomania-local.png" alt="Default Post pick">
       </div>
     
-      <input aria-label="Click to choose your article image" class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .gif, .png">
+      <input aria-label="Click to choose your article image" class="btn-upload" @change="upload()" type="file" ref="image" name="image"  id="post-file" accept=".jpg, .jpeg, .png">
       
       <div class="add-post-form-group">
         <label for="title">Title:</label>
