@@ -3,13 +3,13 @@
       <div class="banner">
         <img src="../assets/groupomania-banner-logo.png" alt="Logo Groupomania">
         <nav>
-          <router-link  tag="a" to="/Home" custom v-slot="{ navigate }"><i class="fas fa-home" @click="navigate"></i></router-link>
+          <router-link aria-label="To home page" tag="a" to="/Home" custom v-slot="{ navigate }"><i class="fas fa-home" @click="navigate"></i></router-link>
           |
-          <router-link  tag="a" to="/AddPost" custom v-slot="{ navigate }"><i class="far fa-envelope-open" @click="navigate"></i></router-link>
+          <router-link aria-label="To create post page" tag="a" to="/AddPost" custom v-slot="{ navigate }"><i class="far fa-envelope-open" @click="navigate"></i></router-link>
           |
-          <router-link  tag="a" to="/MyAccount" custom v-slot="{ navigate }"><i class="fas fa-cogs" @click="navigate"></i></router-link>
+          <router-link aria-label="To my account" tag="a" to="/MyAccount" custom v-slot="{ navigate }"><i class="fas fa-cogs" @click="navigate"></i></router-link>
           |
-          <i class="fas fa-power-off" @click="onDisconnect()"></i>
+          <i aria-label="To disconnect" class="fas fa-power-off" @click="onDisconnect()"></i>
         </nav>
       </div> 
   </div>

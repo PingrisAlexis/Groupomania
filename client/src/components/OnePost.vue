@@ -1,6 +1,7 @@
 <template>
-<div>
-  <div class="post-contenair" >
+  <div>
+    <div class="post-contenair" >
+    
       <header  v-for = "user in users" :key = "user.id">
         <div class="post-contenair-header" v-if="user.id === post.userId">
           <img v-if="user.avatar" :src="user.avatar" alt="User's profil pick" :key="user.avatar">
@@ -14,12 +15,14 @@
           </div>
         </div>
       </header>
+      
       <div >
         <button aria-label="Post options" v-if="post.userId == storageUser.userId && !editPost" class="btn-edit-post" @click="editPost = true"><i class="fas fa-bars"></i></button>
         <button aria-label="Back from post options" v-if="post.userId == storageUser.userId && editPost" class="btn-cancel-post" @click="editPost = false"><i class="fas fa-undo"></i></button>
         <button aria-label="Delete the post" v-if="post.userId == storageUser.userId  && editPost || storageUser.admin == 1" class="btn-delete-post" @click="deletePost()"><i class="fas fa-trash-alt"></i></button>
         <button aria-label="Modify the post" v-if="post.userId == storageUser.userId && editPost" class="btn-modify-post"  @click="modifyPost()"><i class="fas fa-check"></i></button>
       </div>
+      
       <main v-if="!editPost">
         <h1>{{post.title}}</h1>
         <section>
@@ -27,6 +30,7 @@
           <p class="post-message" v-html="(post.message)"></p>
         </section>
       </main>
+      
       <main v-if="editPost">
         <input aria-label="Edit the title" @input="handleInputTitle" :value="post.title" maxlength="30" type="text" class="edit-post-title" id="edit-title" required>
         <div class="edit-section">
@@ -39,32 +43,33 @@
           </vue-editor>
         </div>
       </main>
+      
       <footer v-if="!editPost">
         <div v-for = "comment in comments" :key = "comment.id">
-        <div  v-for = "user in users" :key = "user.id">
-          <div class="one-comment" v-if=" user.id === comment.userId">
-            <div class="one-comment-info">
-              <img v-if="user.avatar" :src="user.avatar" alt="User's comment profil pick" :key="user.avatar" class="one-comment-info-image">
-              <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil pick" class="one-comment-info-image">
-              <div class="one-comment-user">
-                <span class="user-lastname">{{user.lastname}} </span>
-                <span class="user-firstname">{{user.firstname}} </span>
+          <div  v-for = "user in users" :key = "user.id">
+            <div class="one-comment" v-if=" user.id === comment.userId">
+              <div class="one-comment-info">
+                <img v-if="user.avatar" :src="user.avatar" alt="User's comment profil pick" :key="user.avatar" class="one-comment-info-image">
+                <img v-else src="../assets/random-user.png" :key="user.avatar" alt="Default profil pick" class="one-comment-info-image">
+                <div class="one-comment-user">
+                  <span class="user-lastname">{{user.lastname}} </span>
+                  <span class="user-firstname">{{user.firstname}} </span>
+                </div>
+                <div>
+                  <span>The {{comment.createdAt}}</span>
+                </div>
+                <p class="comment-content">{{comment.comment}}</p>
+                <textarea contentEditable class="edit-comment-content" aria-label="Click here to modify the comment" id="edit-comment" @input="handleInputComment" v-if="editComment == comment.id" :value="comment.comment" type="text"></textarea>
               </div>
-              <div>
-                <span>The {{comment.createdAt}}</span>
+              <div class="btn-options">
+                <button aria-label="Comment option" v-if="comment.userId == storageUser.userId && editComment == 0" class="btn-cancel-post" @click="editComment = comment.id"><i class="fas fa-bars"></i></button>
+                <button aria-label="Back from comment option" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-cancel-post" @click="editComment = 0"><i class="fas fa-undo"></i></button>
+                <button aria-label="Delete the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id|| storageUser.admin == 1" class="btn-delete-post" @click="deleteOneComment(comment.id)"><i class="fas fa-trash-alt"></i></button>
+                <button aria-label="Modify the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-modify-post" @click="modifyOneComment(comment.id)"><i class="fas fa-check"></i></button>
               </div>
-               <p class="comment-content">{{comment.comment}}</p>
-              <textarea contentEditable class="edit-comment-content" aria-label="Click here to modify the comment" id="edit-comment" @input="handleInputComment" v-if="editComment == comment.id" :value="comment.comment" type="text"></textarea>
+              <hr>
             </div>
-            <div class="btn-options">
-              <button aria-label="Comment option" v-if="comment.userId == storageUser.userId && editComment == 0" class="btn-cancel-post" @click="editComment = comment.id"><i class="fas fa-bars"></i></button>
-              <button aria-label="Back from comment option" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-cancel-post" @click="editComment = 0"><i class="fas fa-undo"></i></button>
-              <button aria-label="Delete the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id|| storageUser.admin == 1" class="btn-delete-post" @click="deleteOneComment(comment.id)"><i class="fas fa-trash-alt"></i></button>
-              <button aria-label="Modify the comment" v-if="comment.userId == storageUser.userId && editComment == comment.id" class="btn-modify-post" @click="modifyOneComment(comment.id)"><i class="fas fa-check"></i></button>
-            </div>
-            <hr>
           </div>
-        </div>
         </div>
         <ul v-if="errors.length">
           <b>Please correct the following error(s):</b>
@@ -76,6 +81,7 @@
           <hr>
         </form>
       </footer>
+      
     </div>
   </div>
 </template>
@@ -112,8 +118,6 @@ export default {
       inputDataTitle: "",
       inputDataMessage:"",
       url: null,
-      messagePostValidation: "",
-      messageCommentValidation: ""
     }
   },
   mounted() {
@@ -266,7 +270,6 @@ export default {
       }
       return this.errors.length ? false : true;
     },
-
     deleteOneComment(commentId){
       const postId = this.$route.params.id;
       this.$http.delete(`http://localhost:3000/api/posts/${postId}/comments/${commentId}`,

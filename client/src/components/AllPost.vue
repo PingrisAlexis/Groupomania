@@ -18,7 +18,7 @@
     
     <div class="one-post-main">
       <router-link :to="{ name: 'Post', params: { id : post.id } }">
-        <img :src="post.media" alt="Post image" class="one-post-image">
+        <img :src="post.media" alt="Post picture" class="one-post-image">
         <h2>{{post.title}}</h2>
       </router-link>
     </div>
