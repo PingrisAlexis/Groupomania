@@ -47,7 +47,7 @@ export default {
        
         .then(res => {
           if(res.status === 200) {
-            localStorage.setItem('user', JSON.stringify(res.data));
+            localStorage.setItem("user", JSON.stringify(res.data));
             this.$router.push('/Home')
           }
         })

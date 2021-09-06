@@ -20,7 +20,7 @@ export default {
   methods: {
     onDisconnect() {
       localStorage.clear();
-      window.location="/Login";
+      window.location = "/Login";
     },
   }
 };
