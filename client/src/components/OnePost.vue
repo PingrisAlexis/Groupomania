@@ -31,7 +31,7 @@
         </section>
       </main>
       
-      <main v-if="editPost">
+      <main class="edit-main" v-if="editPost">
         <input aria-label="Edit the title" :value="post.title" @change="handleInputTitle" maxlength="30" type="text" class="edit-post-title" id="edit-title" required>
         <div class="edit-section">
           <div id="preview">
@@ -585,7 +585,8 @@ footer {
 @media screen and (max-width: 680px) {
 
  section img,
- header {
+ header,
+ .edit-main img {
    width: 100vw;
  }
   h1,

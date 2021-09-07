@@ -221,4 +221,16 @@ ul {
   justify-content: center;
   align-items: center;
 }
+
+@media screen and (max-width: 470px) {
+.add-post-contenair,
+ form img,
+ .add-post-form-group,
+ .add-post-vue-editor {
+   width: 100vw;
+ }
+ .add-post-contenair {
+   max-width: none;
+ }
+}
 </style>
