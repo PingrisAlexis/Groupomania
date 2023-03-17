@@ -1,6 +1,6 @@
-# Groupomania
+# Project 6/6 - Web Developer Path
 
-## Project 7 OpenClassrooms - Create a corporate social network.
+## Create a corporate social network.
 
 ### Specifications:
 
