@@ -1,4 +1,4 @@
-# PingrisAlexis_07_13072021
+# Groupomania
 
 ## Project 7 OpenClassrooms - Create a corporate social network.
 
